@@ -1,0 +1,56 @@
+apiVersion: skaffold/v4beta9
+kind: Config
+metadata:
+  name: grapple-template
+build:
+  artifacts:
+    # - image: "app-test"
+    #   docker:
+    #     dockerfile: Dockerfile.test
+    - image: "app"
+      docker:
+        dockerfile: Dockerfile
+  tagPolicy:
+    dateTime: {}
+deploy:
+  helm:
+    releases:
+      - name: "{{ .APP }}"
+        chartPath: chart
+        valuesFiles:
+          - chart/values.yaml
+        version: 0.1.0
+        namespace: "{{ .APP }}-dev{{ .NAMESPACE }}"
+        createNamespace: true
+test:
+  - image: busybox
+    custom:
+      - command: ./test/*.sh
+        timeoutSeconds: 1200
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+      - command: delete
+      - command: build
+  - name: nop
+    activation:
+      - env: ENV=nop
+    patches:
+    - op: replace
+      path: /deploy/helm/releases/0/namespace
+      value: "{{ .APP }}-{{ .ENV }}"
+  - name: uat
+    activation:
+      - env: ENV=uat
+    patches:
+    - op: replace
+      path: /deploy/helm/releases/0/namespace
+      value: "{{ .APP }}-{{ .ENV }}"
+  - name: prod
+    activation:
+      - env: ENV=production
+    patches:
+    - op: replace
+      path: /deploy/helm/releases/0/namespace
+      value: "{{ .APP }}"

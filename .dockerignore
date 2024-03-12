@@ -1,0 +1,14 @@
+**/node_modules/
+**/dist
+.git
+npm-debug.log
+.coverage
+.coverage.*
+.env
+.aws
+.gitignore
+Dockerfile
+Dockerfile.test
+chart
+README.md
+tags.json
