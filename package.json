@@ -6,7 +6,8 @@
     "build:dev": "webpack --mode development",
     "build:start": "cd dist && PORT=4001 npx serve",
     "start": "webpack serve --open --mode development",
-    "start:live": "webpack serve --open --mode development --live-reload --hot"
+    "start:live": "webpack serve --open --mode development --live-reload --hot",
+    "dev": "env-cmd --silent webpack serve --open --mode development --live-reload --hot"
   },
   "license": "MIT",
   "devDependencies": {
@@ -18,6 +19,7 @@
     "autoprefixer": "^10.1.0",
     "babel-loader": "^8.2.2",
     "css-loader": "^6.3.0",
+    "env-cmd": "10.1.0",
     "html-webpack-plugin": "^5.3.2",
     "mini-css-extract-plugin": "^0.9.0",
     "postcss": "^8.2.1",

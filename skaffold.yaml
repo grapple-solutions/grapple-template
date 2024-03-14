@@ -1,7 +1,7 @@
 apiVersion: skaffold/v4beta9
 kind: Config
 metadata:
-  name: grapple-template
+  name: "{{ .APP }}"
 build:
   artifacts:
     # - image: "app-test"
@@ -10,9 +10,17 @@ build:
     - image: "app"
       docker:
         dockerfile: Dockerfile
+      # hooks:
+      #   # before:
+      #   #   - command: ["sh", "-c", "./hook.sh"]
+      #   #     os: [darwin, linux]
+      #   after:
+      #     - command: ["sh", "-c", "./publish.sh"]
+      #       os: [darwin, linux]
   tagPolicy:
     dateTime: {}
 deploy:
+  statusCheckDeadlineSeconds: 1200
   helm:
     releases:
       - name: "{{ .APP }}"
@@ -22,17 +30,46 @@ deploy:
         version: 0.1.0
         namespace: "{{ .APP }}-dev{{ .NAMESPACE }}"
         createNamespace: true
+        packaged: 
+          version: 0.1.0
+          appVersion: 0.1.0
+portForward:
+  - resourceType: service
+    resourceName: "{{ .APP }}"
+    port: 80
+    # localPort: 8080
+    namespace: "{{ .APP }}-dev{{ .NAMESPACE }}"
+  # - resourceType: service
+  #   resourceName: api
+  #   port: 80
+  #   localPort: 9999
 test:
   - image: busybox
     custom:
       - command: ./test/*.sh
         timeoutSeconds: 1200
 profiles:
+  - name: minikube
+    activation:
+      - command: dev
+        kubeContext: minikube
+      - command: delete
+        kubeContext: minikube
+      - command: build
+        kubeContext: minikube
+    patches:
+    - op: add
+      path: /deploy/helm/releases/0/valuesFiles/1
+      value: "chart/values-minikube.yaml"
   - name: dev
     activation:
       - command: dev
       - command: delete
       - command: build
+    patches:
+    - op: add
+      path: /deploy/helm/releases/0/valuesFiles/1
+      value: "chart/values-dev.yaml"
   - name: nop
     activation:
       - env: ENV=nop

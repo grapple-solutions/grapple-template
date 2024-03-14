@@ -8,6 +8,7 @@ spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
+  progressDeadlineSeconds: 1200
   selector:
     matchLabels:
       {{- include "myapp.selectorLabels" . | nindent 6 }}
@@ -33,14 +34,25 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- toYaml .Values.env | nindent 12 }}
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /admin
+              port: 80
+            initialDelaySeconds: 500
+            periodSeconds: 10
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /admin
+              port: 80
+            failureThreshold: 200
+            periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /

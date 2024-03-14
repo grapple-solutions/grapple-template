@@ -1,0 +1,26 @@
+env:
+# - name: DEV
+#   value: "true"
+- name: SVELTE_APP_REMOTE_URL
+  value: "https://grpl-db-grpl-db-gruim.ekekenta.grapple-demo.com"
+- name: CONTAINER_NAME
+  value: "grpldbgrpldbgruim"
+
+
+gras-deploy: 
+  # gras: 
+  #   ssl: false
+  grapi:
+    ssl: false
+  gruim:
+    ssl: false
+
+
+ingress:
+  enabled: true
+  hosts:
+    - host: myapp.test
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
