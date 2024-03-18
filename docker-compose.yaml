@@ -1,0 +1,130 @@
+version: "3.8"
+name: grapple-myapp
+services:
+
+  # db:
+  #   image: mysql:8
+  #   command: --default-authentication-plugin=caching_sha2_password
+  #   restart: always
+
+  #   healthcheck:
+  #       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+  #       timeout: 3s
+  #       retries: 200
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: secure_password
+  #     MYSQL_DATABASE: jcscherrer
+  #     MYSQL_USER: myuser
+  #     MYSQL_PASSWORD: password
+  #   ports:
+  #     - "13306:3306"
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #     - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+  #     # - ./db/my.cnf:/etc/mysql/my.cnf
+
+
+  grapi:
+    image: grpl/loopback:v0.128
+    container_name: grapi
+    ports:
+      - "3333:3000"
+    healthcheck:
+          test: curl --fail localhost:3000/ping || exit 1
+          interval: 5s
+          timeout: 3s
+          retries: 200
+          start_period: 60s
+
+    environment:
+      - 'DEV=true'
+      - 'DEV_BE_FOLDER=/grapi'
+      - 'DataSources=db:{"connector":"memory","file":"/home/node/app/db.json","localStorage":"db","name":"db"}'
+      - 'Models=customers:{"base":"Entity","name":"customers","properties":{"addressLine1":{"type":"string"},"addressLine2":{"type":"string"},"city":{"type":"string"},"contactFirstName":{"type":"string"},"contactLastName":{"type":"string"},"country":{"type":"string"},"creditLimit":{"type":"number"},"customerName":{"type":"string"},"id":{"generated":true,"id":true,"required":true,"type":"number"},"phone":{"type":"string"},"postalCode":{"type":"string"},"state":{"type":"string"}}}|employees:{"base":"Entity","name":"customers","properties":{"country":{"type":"string"},"creditLimit":{"type":"number"},"email":{"type":"string"},"extension":{"type":"string"},"firstName":{"type":"string"},"id":{"generated":true,"id":true,"required":true,"type":"number"},"jobTitle":{"type":"string"},"lastName":{"type":"string"},"officesId":{"type":"string"},"postalCode":{"type":"string"},"reportsTo":{"type":"number"},"state":{"type":"string"}}}'
+      - 'DiscoveredRepos="true"'
+      - 'Relations=employees:{"destinationModel":"Employees","foreignKeyName":"employeesId","registerInclusionResolver":true,"relationName":"employees","relationType":"belongsTo","sourceModel":"Customers"}'
+      - 'RestCruds=restcrud:{"datasource":"db"}'
+
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
+
+    volumes:
+      - ./grapi:/grapi
+      - ./data/db.json:/home/node/app/db.json
+
+
+  gruim:
+    image: grpl/cloud20x-ui-modules:0.1.57
+    container_name: gruim
+    ports:
+      - "3000:3000"
+
+    environment:
+    # pass two variables one for parsing the openapi.json and other to call the api from the frontend.
+      - 'DEV="true"'
+      - 'SVELTE_APP_API_ENDPOINT=http://localhost:3000/'
+      - 'OPENAPI_URL=http://grapi:3000/openapi.json'
+      - 'SVELTE_APP_OPENAPI_URL=http://localhost:3000/openapi.json'
+      # - 'SVELTE_APP_UI_MODULES_ADDITIONAL_PACKAGES=svelte-fullcalendar@2.0.0-beta.0 @fullcalendar/common@5.10.1 @fullcalendar/core@5.10.1 @fullcalendar/daygrid@5.10.1 @fullcalendar/interaction@5.10.1 @fullcalendar/timegrid@5.10.1'
+      - 'SVELTE_APP_REMOTE_URL=http://localhost:3000'
+      - 'SVELTE_APP_UI_MODULES_STYLE={"colors":{"primary":{"DEFAULT":"#004a99","fg":"#ffffff"},"accent":{"DEFAULT":"#fa7252","fg":"#ffffff"}}}'
+      - 'SVELTE_APP_CUSTOM_CONFIG={"global":{"list-size":10,"field-properties":{"id":{"readonly":false}}, "weekStart": 1},"schema":{"Trainer":{"field-order":["id","vorname","name","email","aktiv","SummerRateBefore","SummerRateAfter","WinterRateBefore","WinterRateAfter","ClubRate","notizen","token"]},"Kunde":{"field-order":["id","bexioId","name","vorname","mail","ort","plz","strasse","land"]},"Gruppe":{"field-order":["id","gruppenname","beschreibung","gruppentyp","notizen"]},"Product":{"field-order":["id","bexioId","'
+
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+
+    external_links:
+      - grapi
+
+    depends_on:
+      grapi:
+        condition: service_healthy
+
+    volumes:
+      # - ./gruim/shared:/usr/src/app/src/lib/custom-components
+      - ./gruim/shared:/app/src/lib/custom-components
+
+
+
+  mygrappleapp:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    pull_policy: build
+    container_name: mygrappleapp
+    ports:
+      - "4000:4000"
+
+    environment:
+    # pass two variables one for parsing the openapi.json and other to call the api from the frontend.
+      - 'DEV=true'
+      - 'SVELTE_APP_REMOTE_URL=http://localhost:3000'
+      - 'SVELTE_APP_USERNAME=xxx'
+      - 'SVELTE_APP_PASSWORD=yyy'
+      - 'CONTAINER_NAME=Components'
+
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+
+    # external_links:
+    #   - gruim
+    #   - grapi
+
+
+    # depends_on:
+    #   grapi:
+    #     condition: service_healthy
+
+    volumes:
+      - ./src/.:/app/src/
+      - ./webpack.config.js:/app/webpack.config.js
+      - ./package.json:/app/package.json
+
+
+
+    
+
+volumes:
+  mysql_data:    
+

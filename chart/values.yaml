@@ -72,7 +72,7 @@ gras-deploy:
             type: number
     - name: "employees"
       spec: 
-        name: customers
+        name: employees
         base: Entity
         properties:
           id:

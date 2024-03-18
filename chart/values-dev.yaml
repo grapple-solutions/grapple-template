@@ -19,7 +19,7 @@ gras-deploy:
 ingress:
   enabled: true
   hosts:
-    - host: myapp.test
+    - host: myapp
       paths:
         - path: /
           pathType: ImplementationSpecific
