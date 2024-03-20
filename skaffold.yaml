@@ -7,38 +7,46 @@ build:
     # - image: "app-test"
     #   docker:
     #     dockerfile: Dockerfile.test
-    - image: "app"
+    - image: "grapp" # grapple application
       docker:
         dockerfile: Dockerfile
-      # hooks:
-      #   # before:
-      #   #   - command: ["sh", "-c", "./hook.sh"]
-      #   #     os: [darwin, linux]
+      hooks:
+        before:
+          - command: ["sh", "-c", "./before.sh"]
+            os: [darwin, linux]
       #   after:
       #     - command: ["sh", "-c", "./publish.sh"]
       #       os: [darwin, linux]
   tagPolicy:
-    dateTime: {}
+    # dateTime: {}
+    gitCommit: {}
 deploy:
   statusCheckDeadlineSeconds: 1200
   helm:
     releases:
-      - name: "{{ .APP }}"
+      - name: "grapp"
         chartPath: chart
         valuesFiles:
           - chart/values.yaml
+        setValueTemplates:
+          env[0].value: "http://myapp-dev-ns99-myapp-gruim.grpl-cli.grapple-demo.com/dashboard.json"
         version: 0.1.0
-        namespace: "{{ .APP }}-dev{{ .NAMESPACE }}"
+        namespace: "{{ .IMAGE_NAME }}-{{ .IMAGE_TAG }}"
         createNamespace: true
         packaged: 
           version: 0.1.0
           appVersion: 0.1.0
+    # hooks:
+    #   before:
+    #   - host:
+    #       command: ["sh", "-c", "./before.sh"]
+    #       os: [darwin, linux]
 portForward:
   - resourceType: service
-    resourceName: "{{ .APP }}"
+    resourceName: "myapp"
     port: 80
     # localPort: 8080
-    namespace: "{{ .APP }}-dev{{ .NAMESPACE }}"
+    namespace: "{{ .IMAGE_NAME }}-{{ .IMAGE_TAG }}"
   # - resourceType: service
   #   resourceName: api
   #   port: 80
@@ -64,30 +72,37 @@ profiles:
   - name: dev
     activation:
       - command: dev
-      - command: delete
-      - command: build
     patches:
     - op: add
       path: /deploy/helm/releases/0/valuesFiles/1
       value: "chart/values-dev.yaml"
+    # - op: add
+    #   path: /deploy/helm/releases/0/setValues/ingress/hosts/0/host
+    #   value: "{{.APP}}{{.NAMESPACE}}.{{.CLUSTERDOMAIN}}"
+    - op: replace
+      path: /deploy/helm/releases/0/name
+      value: "{{.APP}}"
+    - op: replace
+      path: /deploy/helm/releases/0/namespace
+      value: "{{ .NAMESPACE }}"
   - name: nop
     activation:
       - env: ENV=nop
-    patches:
-    - op: replace
-      path: /deploy/helm/releases/0/namespace
-      value: "{{ .APP }}-{{ .ENV }}"
+    # patches:
+    # - op: replace
+    #   path: /deploy/helm/releases/0/namespace
+    #   value: "{{ .NAMESPACE }}"
   - name: uat
     activation:
       - env: ENV=uat
-    patches:
-    - op: replace
-      path: /deploy/helm/releases/0/namespace
-      value: "{{ .APP }}-{{ .ENV }}"
+    # patches:
+    # - op: replace
+    #   path: /deploy/helm/releases/0/namespace
+    #   value: "{{ .NAMESPACE }}"
   - name: prod
     activation:
       - env: ENV=production
-    patches:
-    - op: replace
-      path: /deploy/helm/releases/0/namespace
-      value: "{{ .APP }}"
+    # patches:
+    # - op: replace
+    #   path: /deploy/helm/releases/0/namespace
+    #   value: "{{ .APP }}"

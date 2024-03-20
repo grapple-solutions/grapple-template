@@ -1,14 +1,10 @@
 env:
-# - name: DEV
-#   value: "true"
 - name: SVELTE_APP_REMOTE_URL
   value: "http://myapp-dev-ns99-myapp-gruim.test"
 - name: CONTAINER_NAME
   value: "myappdevns99myappgruim"
-# - name: SVELTE_APP_REMOTE_URL
-#   value: "https://grpl-db-grpl-db-gruim.ekekenta.grapple-demo.com"
-# - name: CONTAINER_NAME
-#   value: "grpldbgrpldbgruim"
+# - name: DEV
+#   value: "true"
 
 
 gras-deploy: 

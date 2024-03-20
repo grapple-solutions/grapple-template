@@ -10,7 +10,7 @@ gras-deploy:
   enabled: true
   gras: {}
   grapi:
-    # beimagetag: "v0.112"
+    # beimagetag: "v0.130"
     discoveredrepos: true
     ingress: true
     ssl: true

@@ -3,7 +3,12 @@
 
 ## getting started
 
-### dev mode
+### dev mode - using docker-compose
+
+
+
+
+### dev mode in kubernetes
     skaffold dev --port-forward 
 
 > [!TIP]
@@ -29,15 +34,11 @@
 
 
 ### build and run using docker
-docker build -t grapple-template .
-docker run --rm -p 8080:80 grapple-template
+    docker build -t grapple-template .
+    docker run --rm -p 8080:80 grapple-template
 
 then open:
 http://localhost:8080
-
-
-### build and run using docker-compose
-
 
 
 
@@ -51,7 +52,7 @@ http://localhost:8080
 
 
 ### build and run using skaffold (in a remote cluster)
-skaffold dev --default-repo=${YOUR_DOCKER_USERNAME} 
+    skaffold dev --default-repo=${YOUR_DOCKER_USERNAME} 
 
 > [!TIP]
 > ${YOUR_DOCKER_USERNAME} = e.g. grpl from grpl/app:latest (user name in docker hub) - a docker user name where you have permissions to write
@@ -63,6 +64,12 @@ skaffold dev --default-repo=${YOUR_DOCKER_USERNAME}
         ├── index.html          -> 
         ├── index.ts            -> 
         ├── App.svelte          -> 
+    ├── grapi               -> grapi (grapple API) injections
+        ├── controllers          -> grapi controllers
+            ├── ping2.controller.ts     -> example controller injection
+    ├── gruim               -> gruim (grapple UI modules) injections
+        ├── shared          -> gruim shared UI modules 
+            ├── *.svelte    -> example gruim UI module injection
     ├── chart               -> helm chart directory ==> https://helm.sh/docs/topics/charts/
         ├── values.yaml         -> the default configuration values for this chart
         ├── values*.yaml        -> values files for different profiles / environments

@@ -1,10 +1,13 @@
 env:
-# - name: DEV
-#   value: "true"
+# the env for SVELTE_APP_REMOTE_URL must stay in first position due to the patching
 - name: SVELTE_APP_REMOTE_URL
-  value: "https://grpl-db-grpl-db-gruim.ekekenta.grapple-demo.com"
+  value: ""
+  # value: "https://grpl-db-grpl-db-gruim.grpl-cli.grapple-demo.com"
+# the env for CONTAINER_NAME must stay in first position due to the patching
 - name: CONTAINER_NAME
   value: "grpldbgrpldbgruim"
+# - name: DEV
+#   value: "true"
 
 
 gras-deploy: 

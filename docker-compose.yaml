@@ -25,8 +25,8 @@ services:
 
 
   grapi:
-    image: grpl/loopback:v0.128
-    container_name: grapi
+    image: grpl/grapi:v0.2.1
+    container_name: grapi-
     ports:
       - "3333:3000"
     healthcheck:

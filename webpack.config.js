@@ -100,7 +100,6 @@ module.exports = {
       filename: "remoteEntry.js",
       remotes: {
         // Change the remote name to match with the exposed module's name
-        // App: `grpldbgrpldbgruim@https://grpl-db-grpl-db-gruim.ekekenta.grapple-demo.com/remoteEntry.js`,
         App: `${process.env.CONTAINER_NAME}@${process.env.SVELTE_APP_REMOTE_URL}/remoteEntry.js`,
 
       },
