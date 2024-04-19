@@ -26,7 +26,7 @@ services:
 
   grapi:
     image: grpl/grapi:v0.2.1
-    container_name: grapi-
+    container_name: grapi
     ports:
       - "3333:3000"
     healthcheck:
@@ -56,6 +56,7 @@ services:
 
   gruim:
     image: grpl/cloud20x-ui-modules:0.1.57
+    # image: patrickriegler/cloud20x-ui-modules:cosm-COSM-231-ui-modules-dev-mode-improvement
     container_name: gruim
     ports:
       - "3000:3000"
@@ -63,6 +64,7 @@ services:
     environment:
     # pass two variables one for parsing the openapi.json and other to call the api from the frontend.
       - 'DEV="true"'
+      - 'DEV_BE_FOLDER=/gruim'
       - 'SVELTE_APP_API_ENDPOINT=http://localhost:3000/'
       - 'OPENAPI_URL=http://grapi:3000/openapi.json'
       - 'SVELTE_APP_OPENAPI_URL=http://localhost:3000/openapi.json'
@@ -83,7 +85,7 @@ services:
 
     volumes:
       # - ./gruim/shared:/usr/src/app/src/lib/custom-components
-      - ./gruim/shared:/app/src/lib/custom-components
+      - ./gruim/shared:/gruim
 
 
 

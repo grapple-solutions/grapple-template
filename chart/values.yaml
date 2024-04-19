@@ -38,9 +38,9 @@ gras-deploy:
           file: "/data/db.json"
           localStorage: "db"
     models:
-    - name: "customers"
+    - name: "kunde"
       spec: 
-        name: customers
+        name: kunde
         base: Entity
         properties:
           id:
@@ -48,9 +48,9 @@ gras-deploy:
             id: true
             required: true
             generated: true
-          customerName:
+          KundeName:
             type: string
-          contactLastName:
+          KontaktNachmae:
             type: string
           contactFirstName:
             type: string
