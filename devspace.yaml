@@ -25,7 +25,8 @@ images:
   app:
     image: docker.io/library/grpl/grapp:devspace
     dockerfile: ./Dockerfile
-    buildKit: {}
+    buildKit: # {}
+      args: [--platform, 'linux/amd64,linux/arm64']
 
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
@@ -81,10 +82,12 @@ dev:
     # Search for the container that runs this image
     labelSelector: 
       app.kubernetes.io/name: gruim
-    devImage: docker.io/library/grpl/cloud20x-ui-modules:0.1.58
+    devImage: docker.io/library/grpl/grpl/gruim:v0.2.4
     env:
       - name: DEV
         value: "true"
+      # - name: OPENAPI_URL
+      #   value: "http://dev-app-grapi.grpl-cli.grapple-demo.com/openapi.json"
     restartHelper:
       inject: true
       path: "export DEV=true && ./rebuild-assets.sh"
@@ -95,7 +98,7 @@ dev:
     # Search for the container that runs this image
     labelSelector: 
       app.kubernetes.io/name: grapi
-    devImage: docker.io/library/grpl/grapi:v0.2.1
+    devImage: docker.io/library/grpl/grapi:v0.2.4
     env:
       - name: DEV
         value: "true"
