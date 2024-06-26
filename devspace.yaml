@@ -10,6 +10,8 @@ pipelines:
       ensure_pull_secrets --all    # 2. Ensure pull secrets
       build_images --all -t $(git describe --always)    # 3. Build, tag (git commit hash) and push all images (see "images")
       create_deployments --all     # 3. Deploy Helm charts and manifests specfied as "deployments"
+      start_dev grapi
+      start_dev gruim              
       start_dev app                # 4. Start dev mode "app" (see "dev" section)
   # You can run this pipeline via `devspace deploy` (or `devspace run-pipeline deploy`)
   deploy:
@@ -52,6 +54,11 @@ dev:
     # Replace the container image with this dev-optimized image (allows to skip image building during development)
     devImage: docker.io/library/grpl/grapp:devspace
     # Sync files between the local filesystem and the development container
+    env:
+      - name: CONTAINER_NAME
+        value: "mikiasdevappgruim"
+      - name: SVELTE_APP_REMOTE_URL
+        value: "http://localhost:8080"
     sync:
       - path: ./
         uploadExcludePaths:
@@ -77,36 +84,41 @@ dev:
     open:
       - url: http://localhost:4000
 
-
   gruim:
     # Search for the container that runs this image
     labelSelector: 
       app.kubernetes.io/name: gruim
-    devImage: docker.io/library/grpl/grpl/gruim:v0.2.4
+    devImage:  docker.io/grpl/gruim:0.2.4
     env:
       - name: DEV
         value: "true"
+    sync:
+      - path: ./gruim/shared/.:/usr/src/app/src/lib/custom-components/.
       # - name: OPENAPI_URL
       #   value: "http://dev-app-grapi.grpl-cli.grapple-demo.com/openapi.json"
-    restartHelper:
-      inject: true
-      path: "export DEV=true && ./rebuild-assets.sh"
+    # restartHelper:
+    #   inject: true
+    #   path: "export DEV=true && ./rebuild-assets.sh"
     ports:
-    - port: "3000:8080" 
+    - port: "8080:8080" 
 
   grapi:
     # Search for the container that runs this image
     labelSelector: 
       app.kubernetes.io/name: grapi
-    devImage: docker.io/library/grpl/grapi:v0.2.4
+    devImage: docker.io/grpl/grapi:0.2.4
     env:
       - name: DEV
         value: "true"
-    restartHelper:
-      inject: true
-      path: "export DEV=true && ./start.sh"
+    # TODO: path to the controller directory
+    # sync:
+      # - path: ./grapi/controllers/.:/.
+  
+    # restartHelper:
+    #   inject: true
+    #   path: "export DEV=true && ./start.sh"
     ports:
-    - port: "3333:3000" 
+    - port: "3000:3000" 
 
 # Use the `commands` section to define repeatable dev workflows for this project 
 commands:
