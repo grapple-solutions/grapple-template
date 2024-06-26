@@ -7,6 +7,7 @@ const sveltePreprocess = require("svelte-preprocess");
 
 const mode = process.env.NODE_ENV || "development";
 const prod = mode === "production";
+const fetch = require("node-fetch");
 
 module.exports = async () => {
   let CONTAINER_NAME;

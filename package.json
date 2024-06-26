@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.13.10",
-    "dayjs": "^1.11.8"
+    "dayjs": "^1.11.8",
+    "node-fetch": "^2.7.0"
   }
 }
