@@ -57,9 +57,9 @@ dev:
     # Sync files between the local filesystem and the development container
     env:
       - name: CONTAINER_NAME
-        value: "mikiasdevappgruim"
+        value: "Components"
       - name: SVELTE_APP_REMOTE_URL
-        value: "http://localhost:8080"
+        value: "http://localhost:8081"
     sync:
       - path: ./
         uploadExcludePaths:
