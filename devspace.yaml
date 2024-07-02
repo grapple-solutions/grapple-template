@@ -59,6 +59,10 @@ dev:
     env:
       - name: DEV
         value: "true"
+      - name: CONTAINER_NAME
+        value: Components
+      - name: SVELTE_APP_REMOTE_URL
+        value: "http://localhost:8080"
     sync:
       - path: ./
         uploadExcludePaths:
