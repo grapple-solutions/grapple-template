@@ -16,4 +16,4 @@ tags.json
 target
 skaffold.yaml
 docker-compose.yaml
-devspace*
+devspace.yaml

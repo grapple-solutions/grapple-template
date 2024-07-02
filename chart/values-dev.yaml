@@ -15,6 +15,7 @@ gras-deploy:
   #   ssl: false
   grapi:
     ssl: false
+    autorestartgruim: false
   gruim:
     ssl: false
 
