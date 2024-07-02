@@ -38,7 +38,7 @@ spec:
             - name: REMOTE_ENTRY_URL
               valueFrom:
                 configMapKeyRef:
-                  name: patrick-dev-app-gruim-muim
+                  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-gruim-muim"
                   key: remoteentry
           {{- if .Values.env }}
             {{- toYaml .Values.env | nindent 12 }}
