@@ -1,8 +1,4 @@
 env:
-- name: SVELTE_APP_REMOTE_URL
-  value: "http://localhost:3000"
-- name: CONTAINER_NAME
-  value: "myappdevns99myappgruim"
 - name: DEV
   value: "true"
 

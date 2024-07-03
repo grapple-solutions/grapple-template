@@ -8,7 +8,6 @@ const sveltePreprocess = require("svelte-preprocess");
 const mode = process.env.NODE_ENV || "development";
 const prod = mode === "production";
 
-
 module.exports = {
   output: {
     // publicPath: prod?  "/modules/": "http://localhost:4001/",
@@ -30,7 +29,7 @@ module.exports = {
   devServer: {
     port: 4000,
     historyApiFallback: true,
-    allowedHosts: "all"
+    allowedHosts: "all",
   },
 
   module: {
@@ -101,7 +100,6 @@ module.exports = {
       remotes: {
         // Change the remote name to match with the exposed module's name
         App: `${process.env.CONTAINER_NAME}@${process.env.SVELTE_APP_REMOTE_URL}/remoteEntry.js`,
-
       },
       exposes: {},
       shared: {},
