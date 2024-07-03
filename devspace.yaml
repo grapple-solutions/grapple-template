@@ -10,7 +10,8 @@ pipelines:
       ensure_pull_secrets --all    # 2. Ensure pull secrets
       build_images --all -t $(git describe --always)    # 3. Build, tag (git commit hash) and push all images (see "images")
       create_deployments --all     # 3. Deploy Helm charts and manifests specfied as "deployments"
-      echo "waiting on chart deployment..." && sleep 10
+      echo "waiting on chart deployment..."
+      while ! kubectl wait deploy -l app.kubernetes.io/name=grapi --for=condition=available >/dev/null 2>&1; do echo -n "."; sleep 1; done
       start_dev grapi
       start_dev gruim              
       start_dev app                # 4. Start dev mode "app" (see "dev" section)
@@ -101,6 +102,8 @@ dev:
     #   path: "export DEV=true && ./rebuild-assets.sh"
     ports:
     - port: "8080:8080"
+    open:
+      - url: http://localhost:8080
 
   grapi:
     # Search for the container that runs this image
@@ -119,6 +122,8 @@ dev:
     #   path: "export DEV=true && ./start.sh"
     ports:
     - port: "3000:3000" 
+    open:
+      - url: http://localhost:3000
 
 # Use the `commands` section to define repeatable dev workflows for this project 
 commands:
