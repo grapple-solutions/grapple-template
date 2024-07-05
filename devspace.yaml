@@ -127,10 +127,12 @@ dev:
 
 # Use the `commands` section to define repeatable dev workflows for this project 
 commands:
-  migrate-db:
+  gruim:
     command: |-
-      echo 'This is a cross-platform, shared command that can be used to codify any kind of dev task.'
-      echo 'Anyone using this project can invoke it via "devspace run migrate-db"'
+      devspace enter gruim --label-selector app.kubernetes.io/name=gruim $@
+  grapi:
+    command: |-
+      devspace enter grapi --label-selector app.kubernetes.io/name=grapi $@
 
 # Define dependencies to other projects with a devspace.yaml
 # dependencies:
