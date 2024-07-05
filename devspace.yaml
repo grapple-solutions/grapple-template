@@ -129,10 +129,14 @@ dev:
 commands:
   gruim:
     command: |-
-      devspace enter gruim --label-selector app.kubernetes.io/name=gruim $@
+      devspace enter --label-selector app.kubernetes.io/name=gruim gruim $@
   grapi:
     command: |-
-      devspace enter grapi --label-selector app.kubernetes.io/name=grapi $@
+      devspace enter --label-selector app.kubernetes.io/name=grapi grapi $@
+  migrate-db:
+    command: |-
+      devspace enter --label-selector app.kubernetes.io/name=grapi npm run build && \
+      devspace enter --label-selector app.kubernetes.io/name=grapi npm run migrate
 
 # Define dependencies to other projects with a devspace.yaml
 # dependencies:
