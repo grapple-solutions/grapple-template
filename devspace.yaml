@@ -11,7 +11,8 @@ pipelines:
       build_images --all -t $(git describe --always)    # 3. Build, tag (git commit hash) and push all images (see "images")
       create_deployments --all     # 3. Deploy Helm charts and manifests specfied as "deployments"
       echo "waiting on chart deployment..."
-      while ! kubectl wait deploy -l app.kubernetes.io/name=grapi --for=condition=available >/dev/null 2>&1; do echo -n "."; sleep 1; done
+      sleep 3
+      while ! (kubectl get po -l app.kubernetes.io/name=grapi -o name 2>&1 | grep grapi >/dev/null 2>&1); do echo -n "."; sleep 1; done
       start_dev grapi
       start_dev gruim              
       start_dev app                # 4. Start dev mode "app" (see "dev" section)
