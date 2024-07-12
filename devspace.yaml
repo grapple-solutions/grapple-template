@@ -12,7 +12,8 @@ pipelines:
       create_deployments --all     # 3. Deploy Helm charts and manifests specfied as "deployments"
       echo "waiting on chart deployment..."
       # TODO: find a solution for windows (while is not working on windows)...
-      while ! kubectl get deploy -l app.kubernetes.io/name=grapi 2>/dev/null | grep grapi; do echo -n "."; sleep 1; done
+      sleep 10
+      # while ! kubectl get deploy -l app.kubernetes.io/name=grapi 2>/dev/null | grep grapi; do echo -n "."; sleep 1; done
       # kubectl get deploy -l app.kubernetes.io/name=grapi --for=condition=available
       start_dev grapi
       start_dev gruim              
