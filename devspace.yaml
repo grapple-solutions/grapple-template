@@ -11,6 +11,7 @@ pipelines:
       build_images --all -t $(git describe --always)    # 3. Build, tag (git commit hash) and push all images (see "images")
       create_deployments --all     # 3. Deploy Helm charts and manifests specfied as "deployments"
       echo "waiting on chart deployment..."
+      # TODO: find a solution for windows (while is not working on windows)...
       while ! kubectl get deploy -l app.kubernetes.io/name=grapi 2>/dev/null | grep grapi; do echo -n "."; sleep 1; done
       # kubectl get deploy -l app.kubernetes.io/name=grapi --for=condition=available
       start_dev grapi
@@ -63,8 +64,10 @@ dev:
         value: "true"
     sync:
       - path: ./
-        uploadExcludePaths:
+        excludePaths:
           - node_modules
+          - gruim
+          - grapi
         uploadExcludeFile: .dockerignore
     # Open a terminal and use the following command to start it
     terminal:
