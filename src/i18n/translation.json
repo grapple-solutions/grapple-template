@@ -1,0 +1,153 @@
+{
+  "Next": "Weiter",
+  "Submit": "Antrag absenden",
+  "Start": "Beginnen",
+
+  "Welcome": "Willkommen",
+  "1) Welcome": "WILLKOMMEN",
+  "Welcome to the purchase process": "Willkommen zur Mercedes-Benz Cashback-Aktion",
+  "Registration": "Registrierung",
+  "2) Registration": "REGISTRIERUNG",
+
+  "MBD Purchase Payback Registration": "Cashback-Aktion Registrierung",
+  "Purchase Information": "Angaben über den Kauf",
+  "3) Purchase Information": "KAUF-INFORMATIONEN",
+
+  "Information about the Purchase": "Angaben über den Kauf",
+  "Personal information": "Persönliche Informationen",
+  "4) Personal information": "Persönliche Informationen",
+  "Personal Information": "Persönliche Informationen",
+
+  "Personal information description": "Angabe personenbezogener Daten",
+  "Questions": "ZUSATZFRAGEN",
+  "5) Questions": "UMFRAGE",
+  "Questions to payback offer": "Zusatzfragen zur Cashback-Aktion",
+
+  "Terms & Conditions": "Antrag abschließen",
+  "6) Terms & Conditions": "ANTRAG EINREICHEN",
+  "Terms & Conditions and next steps": "Antrag abschließen, Teilnahmebedingungen und Datenschutz",
+  "Our questions to you": "Unsere Fragen an Sie",
+
+  "Drop files here or": "Kaufbeleg fotografieren, Dateien hierher ziehen, oder",
+  "browse files": "suchen",
+  "1 file selected": "eine Datei ausgewählt",
+  "file selected": "Datei(en) ausgewählt",
+  "Cancel": "Abbrechen",
+  "Remove file": "Datei entfernen",
+  "Upload 1 file": "Eine Datei hochladen",
+  "Upload": "hochladen",
+  "file": "Datei",
+  "Add more files": "Weitere Dateien hinzufügen",
+  "Uploading 1 file": "Eine Datei wird hochgeladen",
+  "Uploading": "Hochladen",
+  "Uploading:": "Hochladen:",
+  "Wird hochgeladen:": "Daten werden ausgelesen - bitte warten:",
+
+  "The information on your picture could not be recognised. Please click on Cancel to try upload another picture/file or click on 'next' to enter the information manually.": "Das Dokument konnte nicht ausgelesen werden. Bitte wählen sie 'Abbrechen' um noch einmal ein Dokument einzulesen oder wählen Sie 'Weiter' und ergänzen Sie Ihre persönlichen Angaben.",
+
+  "purchase-info-intro": "Bitte prüfen, vervollständigen oder bestätigen Sie die nachfolgenden Informationen. Dafür können Sie bei Bedarf Angaben zu Ihrem Kauf direkt in den Eingabefeldern anpassen. Durch Fortsetzen des Antragsprozesses bestätigen Sie die Korrektheit Ihrer Angaben.",
+  "PURCHASE DATE": "Kaufdatum",
+  "DEALER": "Mercedes-Benz Händler",
+  "PARTS": "Gekaufte Räder",
+  "PARTS COUNT": "Anzahl Räder",
+  "EINLAGERUNG": "Einlagerung",
+  "WECHSEL": "Wechsel",
+  "RADWECHSEL": "Radwechsel",
+
+  "personal-info-intro": "Bitte prüfen, vervollständigen oder bestätigen Sie die nachfolgenden Informationen. Dafür können Sie bei Bedarf Angaben zu Ihrem Kauf direkt in den Eingabefeldern anpassen. Durch Fortsetzen des Antragsprozesses bestätigen Sie die Korrektheit Ihrer Angaben.",
+  "NAME": "Vor- und Nachname",
+  "COMPANY": "Unternehmen",
+  "STREET": "Straße und Hausnummer",
+  "CITY": "Ort",
+  "ZIP CODE": "PLZ",
+  "PHONE": "Telefon",
+  "EMAIL": "Email",
+  "IBAN": "IBAN-Nummer",
+  "Invalid IBAN": "Bitte geben Sie eine gültige IBAN Nummer ein",
+  "The IBAN number must consist of 22 characters": "Die IBAN Nummer sollte 22 Zeichen lang sein.",
+  "Fülle dieses Feld aus.": "Feld bitte ausfüllen, dieses Feld darf nicht leer sein.",
+
+  "Ladies and Gentlemen": "Sehr geehrte Damen und Herren,",
+  "Welcome to the Mercedes-Benz cashback campaign.": "Herzlich willkommen zur Winterkomplettrad Cashback-Aktion 2023 von Mercedes-Benz.",
+
+  "Mercedes-Benz Service offers you everything from a single source. Especially if As the New Year approaches we want to remind you of the importance of seasonal correct tires on your vehicle. But even more - with ours motto \"everything from one source\" we offer you competent advice also a variety of attractive products for you and your vehicle.": "der Mercedes-Benz Service bietet Ihnen alles aus einer Hand. Insbesondere wenn die Jahreswechsel anstehen, möchten wir Ihnen die Wichtigkeit der saisonal richtigen Bereifung an Ihrem Fahrzeug vermitteln. Aber mehr noch - mit unserem Motto 'Alles aus einer Hand' bieten wir Ihnen neben einer kompetenten Beratung zudem eine Vielzahl attraktiver Produkte für Sie und Ihr Fahrzeug.",
+
+  "With our original Mercedes-Benz complete wheels you are always optimal on the go, because these wheels are specially designed for your Mercedes-Benz type been developed. With the seasonal wheel change, we ensure that Your desired bikes are assembled with professional competence. Our offer of comfortable storage service completes the whole thing and saves you a lot of effort.": "Mit unseren Original Mercedes-Benz Leichtmetall-Winterkompletträdern sind Sie stets optimal unterwegs, denn diese Räder sind speziell für Ihren Mercedes-Benz Typ entwickelt worden. Mit dem saisonalen Räderwechsel sorgen wir dafür, dass Ihre Wunschräder mit Fachkompetenz montiert werden. Unser Angebot des komfortablen Einlagerungsservice rundet das Ganze ab und erspart Ihnen eine Menge Aufwand.",
+
+  "Are you interested? Then secure our current thank you, that we would like to express to you as part of our cashback campaign. Should you decide to buy an original Mercedes-Benz complete winter wheel set, decide to change the wheels on your authorized service partner and ours You can use the storage service for your dismantled summer wheels money back from us.": "Sichern Sie sich an dieser Stelle unser aktuelles Dankeschön, das wir Ihnen im Rahmen unserer Cashback-Aktion aussprechen möchten. Durch den Kauf Ihres Original Mercedes-Benz Leichtmetall-Winterkomplettradsatzes, der Montage bei Ihrem autorisierten Servicepartner und der optionalen Nutzung des Einlagerungsservice für Ihre demontierten Sommerräder, erhalten Sie von uns Geld zurück.",
+
+  "You will receive all further information directly in the following application process.": "Alle weiteren Informationen erhalten Sie direkt im nachfolgenden Antragsprozess.",
+
+  "We congratulate you on the purhase of your new genuine Mercedes-Benz complete winter wheel set and wish you a safe journey at all times.": "Wir gratulieren Ihnen zu dem Erwerb Ihres neuen Original Mercedes-Benz Winterkomplettradsatzes auf Leichtmetallfelgen und wünschen Ihnen allzeit gute Fahrt.",
+
+  "By purchasing the complete winter wheel set, having your wheels changed by your Mercedes-Benz partner and storing your complete summer wheels at the same time, you have fulfilled all the requirements to secure the additional thank you of 50.00 euros.": "Durch den Kauf des Original Mercedes-Benz Leichtmetall-Winterkomplettradsatzes und dem durchgeführten Räderwechsel bei Ihrem Mercedes-Benz Partner, haben Sie alle Voraussetzungen erfüllt, sich unseren Cashback in Höhe von 100,00 Euro zu sichern.\n\nHaben Sie sich zusätzlich für die parallele Einlagerung Ihrer Sommerkompletträder entschieden, erhöht sich dieser Cashback auf 150,00 Euro.",
+
+  "Please provide the information required below, Upload your invoice, read and accept our conditions of participation and Privacy Policy and submit the content for review.": "Bitte laden Sie zunächst eine vollständige Kopie Ihrer Rechnung hoch.",
+  "caution:": "Hinweis:",
+  "Please use the + sign to add additional files.": "Bitte wählen Sie das + Symbol, um mehrere Dateien oder Einzelseiten hochzuladen / zu fotografieren.",
+
+  "With our cashback campaign, we would like to thank you for your loyalty and your thank trust. We would also like to develop this campaign further and so we would be very happy if you take the time and for answer the following questions for us. Our special thanks for this as well": " Mit unserer Cashback-Aktion möchten wir Ihnen für Ihre Treue und Ihr Vertrauen danken. Wir möchten diese Aktion aber auch gerne weiterentwickeln und so würden wir uns sehr freuen, wenn Sie sich die Zeit nehmen und für uns die nachfolgenden Fragen beantworten. Auch hierfür unser besonderer Dank.",
+
+  "caution": "Hinweis: Wir bitten um etwas Geduld. Das Auslesen Ihrer Rechnungskopie kann einige Augenblicke dauern. Für eine reibungslose Antragsprüfung sind alle Seiten Ihrer Rechnung erforderlich. Räderkauf, Radmontage und Einlagerung (optional) müssen klar erkennbar sein. Es gelten die Teilnahmebedingungen.",
+
+  "The": "Es gelten die",
+  "Terms and Conditions": "Teilnahmebedingungen",
+  "for the cashback action and the": "für die \"Winterkomplettrad Cashback-Aktion 2023\" von Mercedes-Benz. Nähere Informationen zur Verarbeitung Ihrer personenbezogenen Daten durch die Mercedes-Benz AG finden Sie in unseren Datenschutzhinweisen. ",
+  "Privacy Policy": "Datenschutzrichtlinien",
+  "of Mercedes-Benz AG apply.": "der Mercedes-Benz AG.",
+
+  "By clicking on 'send application' your details will be saved and forwarded submitted for quick review.": "Durch den Klick auf 'Antrag absenden' werden Ihre Angaben gespeichert und zur schnellen Prüfung übermittelt.",
+
+  "The personal data provided in the cashback application, in particular Name, address, email address, bank details, solely for the purpose of Execution of the resulting contractual relationship necessary and are required based on legal permissions raised.": "  Die im Cashback-Antrag angegebenen personenbezogenen Daten, insbesondere Name, Anschrift, Emailadresse, Bankdaten, die allein zum Zwecke der Durchführung des entstehenden Vertragsverhältnisses notwendig und erforderlich sind, werden auf Grundlage gesetzlicher Berechtigungen erhoben.",
+
+  "By clicking on *'Send application', I consent to Mercedes-Benz or a service provider sending me information by email for the purpose of carrying out the cashback refund. Any further use of the personal data and the collection of additional information for advertising purposes is not intended.": "Durch den Klick auf 'Antrag absenden' willige ich ein, dass mir Mercedes-Benz oder ein Dienstleister Informationen zum Zwecke der Durchführung der Cashback-Erstattung per Email zusendet. Eine darüber hinausgehende Nutzung der personenbezogenen Daten und die Erhebung zusätzlicher Informationen zum Zwecke der Werbung ist nicht vorgesehen.",
+
+  "data protection references before": "Der Schutz Ihrer personenbezogenen Daten ist für uns ein wichtiges Anliegen. In diesen ",
+  "data protection references": "Datenschutzhinweisen",
+  "data protection references after": "erklären wir, wie wir Ihre personenbezogenen Daten erheben, was wir damit tun, für welche Zwecke und auf welchen Rechtsgrundlagen dies geschieht, und welche Rechte und Ansprüche sich damit für Sie verbinden.",
+
+  "cookies explanation": "Wir verwenden ausdrücklich keine Cookies, um Ihnen diese Webseiten, einschließlich der von Ihnen genutzten Funktionen und Dienste, anzubieten.",
+
+  "With clicking on Submit, I accept the terms and conditions.": "Mit Klick auf 'Antrag absenden' werden Ihre Angaben gespeichert und zur schnellen Prüfung übermittelt.",
+
+  "Read more": "weiterlesen",
+  "Read less": "weniger",
+
+  "Thank you for your participation!": "Vielen Dank für Ihre Teilnahme.",
+
+  "We will inform you via email about the status of your application": "Wir werden Sie in Kürze per Email über den Stand Ihres Antrages informieren.",
+  "Close window": "Der Anmeldeprozess ist abgeschlossen. Sie können dieses Fenster nun schließen.",
+
+  "Sign in to your Admin account": "Sign in to your Admin account",
+  "Username": "Username",
+  "Password": "Password",
+  "Sign in": "Sign in",
+  "Username or Password is incorrect": "Username or Password is incorrect",
+
+  "The campaign period of the cashback campaign 2022 has expired.": "Die Cashback-Aktion 2023 wurde beendet.",
+  "The registration period has expired.": "Der Registrierungszeitraum ist zum 31.12.2023 zu Ende gegangen.",
+  "Thank you for your interest in the complete winter wheel cashback campaign 2022. The campaign period for this cashback campaign ended on November 30th, 2022. The application for payment of the cashback amount could be submitted until December 31, 2022. Since January 1st, 2023, no new applications can be submitted for this campaign.": "Vielen Dank für Ihr Interesse an der Winterkomplettrad Cashback-Aktion 2023. Der Aktionszeitraum für diese Cashback-Aktion ist am 30.12.2023 abgelaufen. Der Antrag auf Bezahlung des Cashback-betrages konnte bis zum 31.12.2023 eingereicht werden. Seit dem 01.01.2024 können für diese Aktion keine neuen Anträge mehr eingereicht werden.",
+  "All further information can be found in the conditions of participation for the \"Winter complete wheel cashback\" campaign.": "Alle weiteren Informationen können Sie den Teilnahmebedingungen für die Aktion \"Winterkomplettrad-Cashback\" entnehmen.",
+
+  "The campaign period of the cashback campaign 2023 has not yet started.": "Die Cashback-Aktion 2023 startet in Kürze.",
+  "The registration period starts soon.": "Der Registrierungszeitraum beginnt am 01.09.2023.",
+  "starting on ... you can register here for the cashback action.": "ab dem 01.09.2023 können Sie hier Ihren Antrag zur Teilnahme an der Winterkomplettrad Cashback-Aktion einreichen.",
+  "Further information can be found in the new terms.": "Alle weiteren Informationen können Sie den Teilnahmebedingungen für die Aktion \"Winterkomplettrad-Cashback 2023\" entnehmen:",
+  "Thanks for your interest.": "Vielen Dank für Ihr Interesse und bis bald!",
+  "required": "Pflichtfeld",
+  "Contact Us": "Kontakt",
+  "Feel free to contact us.": "Nehmen Sie Kontakt mit uns auf.",
+  "Sometimes things don't go as smoothly as we planned. If you are unable to complete the application process via the online portal, our service team is at your disposal.": "Manchmal läuft es nicht so rund, wie wir es geplant haben. Sollten Sie den Antragsprozess nicht über das Online-Portal abschließen können, steht Ihnen unser Service-Team zur Verfügung.",
+  "You are welcome to inform us about your concerns here.": "Gerne können Sie uns hier über Ihr Anliegen informieren.Wir werden uns in Kürze zurückmelden.",
+
+  "We will get back to you shortly.": "Wir melden uns in Kürze bei Ihnen.",
+
+  "Thank you for your inquiry.": "Vielen Dank für Ihre Anfrage.",
+  "You can now close this window.": "Sie können dieses Fenster nun schließen.",
+  "Full Name": "Name",
+  "Email": "E-Mail",
+  "Message": "Ihre Nachricht",
+  "Send": "Senden",
+  "This IBAN number does not meet the requirements of our terms and conditions. An account in the Federal Republic of Germany must be specified. Please provide a correct IBAN number.": "Diese IBAN-Nummer entspricht nicht den Anforderungen unserer Teilnahmebedingungen. Es muss ein Konto in der Budesrepublik Deutschland angegeben werden. Bitte geben Sie eine korrekte IBAN-Nummer an.",
+  "Please tell us your IBAN number here.": "Bitte teilen Sie uns hier Ihre IBAN-Nummer mit."
+}

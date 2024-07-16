@@ -1,0 +1,63 @@
+[
+  {
+    "question": "Wie sind Sie auf die Cashback-Aktion aufmerksam geworden?",
+    "options": [
+      "Direkte Empfehlung durch die Mitarbeiter*innen im Mercedes-Benz Autohaus",
+      "Hinweise im Mercedes-Benz Autohaus (Flyer, Angebote, …)",
+      "Hinweis durch Freunde/Bekannte/Kollegen",
+      "sonstiges",
+      "keine Angabe"
+    ],
+    "optional": false
+  },
+  {
+    "question": "Kaufen Sie Ihre Reifen und Kompletträder regelmäßig im Mercedes-Benz Autohaus?",
+    "options": [
+      "Ja, immer",
+      "Nein, nur ab und zu",
+      "Nein, habe zum ersten Mal im Mercedes-Benz Autohaus gekauft",
+      "keine Angabe"
+    ],
+    "optional": false
+  },
+
+  {
+    "question": "Hätten Sie die Winterkompletträder auch ohne die Cashback-Aktion gekauft?",
+    "options": [
+      "Ja, klar",
+      "Nein, nur wegen der Cashback-Aktion",
+      "keine Angabe"
+    ],
+    "optional": false
+  },
+  {
+    "question": "Lassen Sie Ihre Kompletträder regelmäßig im MB-Autohaus einlagern?",
+    "options": [
+      "Ja, regelmäßig zu jeder Saison",
+      "Nein, nur ab und zu",
+      "Nein, habe zum ersten Mal den Einlagerungsservice genutzt",
+      "keine Angabe"
+    ],
+    "optional": false
+  },
+  {
+    "question": "Wie finden Sie die Cashback-Aktion?",
+    "options": [
+      "Finde ich eine sehr gute Aktion",
+      "Die Aktion ist ganz OK",
+      "Finde ich keine gute Aktion",
+      "keine Angabe"
+    ],
+    "optional": false
+  },
+  {
+    "question": "Wie bewerten Sie den Cashback-Beantragungsprozess?",
+    "options": [
+      "Übersichtlich und einfach verständlich",
+      "Hätte etwas einfacher sein können",
+      "Eher kompliziert und verwirrend",
+      "keine Angabe"
+    ],
+    "optional": false
+  }
+]

@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "CorpoA Regular";
+  font-display: block;
+
+  src: url("./assets/fonts/c062003t.ttf");
+}
+
+@font-face {
+  font-family: "CorpoA Bold";
+  font-display: block;
+
+  src: url("./assets/fonts/c062006t.ttf");
+}
+
+@font-face {
+  font-family: "CorpoA Italic";
+  font-display: block;
+  src: url("./assets/fonts/c062023t.ttf");
+}
+
+@font-face {
+  font-family: "CorpoA Bold Italic";
+  font-display: block;
+  src: url("./assets/fonts/c062026t.ttf");
+}
+
+@font-face {
+  font-family: "CorpoS Regular";
+  font-display: block;
+  src: url("./assets/fonts/c063003t.ttf");
+}
+
+@font-face {
+  font-family: "CorpoS Bold";
+  font-display: block;
+  src: url("./assets/fonts/c063006t.ttf");
+}
+@font-face {
+  font-family: "CorpoS Italic";
+  font-display: block;
+  src: url("./assets/fonts/c063023t.ttf");
+}
+@font-face {
+  font-family: "CorpoS Bold Italic";
+  font-display: block;
+  src: url("./assets/fonts/c063026t.ttf");
+}
+.uppy-Dashboard-AddFiles-info {
+  @apply !hidden;
+}
+.uppy-c-btn-primary {
+  @apply !bg-primary !text-white;
+}
+
+.button {
+  @apply inline-flex items-center justify-center rounded border border-slate-300 border-transparent bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 active:shadow-none font-CorpoS;
+}
+
+.button-primary {
+  @apply inline-flex items-center justify-center rounded border border-slate-300 border-transparent bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 active:shadow-none font-CorpoS;
+}
+
+.button-danger {
+  @apply inline-flex items-center justify-center rounded border border-slate-300 border-transparent bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 active:shadow-none font-CorpoS;
+}
+
+.button-disabled {
+  @apply inline-flex items-center justify-center rounded border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-400 transition-all font-CorpoS;
+}
+
+.uppy-Dashboard-inner {
+  @apply !w-full md:!w-[70%] !mx-auto font-CorpoA !z-0;
+}
+
+.uppy-Dashboard-AddFiles-title {
+  @apply !text-[#767676] !text-lg;
+}
+
+.uppy-Dashboard-AddFiles-title > button {
+  @apply !text-center;
+}
+
+.input {
+  @apply w-full min-w-0 rounded border border-slate-300 py-2 px-3 outline-sky-600 transition-all placeholder:italic read-only:!shadow-none read-only:!ring-0 read-only:!transition-none focus:shadow-sm font-CorpoS;
+}
+
+.title {
+  @apply text-3xl font-semibold text-[#333] font-CorpoA;
+}
