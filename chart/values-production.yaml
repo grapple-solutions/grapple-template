@@ -1,0 +1,25 @@
+# gras-deploy: 
+#   grapi:
+#     externalsecrets:
+#     - name: classicmodelsas-auroramysql
+#       spec:
+#         refreshInterval: 1h
+#         secretStoreRef:
+#           name: aws-secretstore
+#           kind: ClusterSecretStore
+#         target:
+#           name: auroramysql
+#           creationPolicy: Owner
+#         dataFrom:
+#         - extract:
+#             key: "{{ .Values.applicationset.secretname }}"
+
+gras-deploy:
+  # gras: 
+  #   ssl: false
+  grapi:
+    ssl: true
+    autorestartgruim: true
+  gruim:
+    ssl: true
+

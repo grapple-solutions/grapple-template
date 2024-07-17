@@ -1,0 +1,29 @@
+# env:
+# # the env for SVELTE_APP_REMOTE_URL must stay in first position due to the patching
+# - name: SVELTE_APP_REMOTE_URL
+#   value: ""
+#   # value: "https://grpl-db-grpl-db-gruim.grpl-cli.grapple-demo.com"
+# # the env for CONTAINER_NAME must stay in first position due to the patching
+# - name: CONTAINER_NAME
+#   value: "grpldbgrpldbgruim"
+# - name: DEV
+#   value: "true"
+
+gras-deploy: 
+  gras: 
+    ssl: false
+    customheader: UAT
+    dev: false
+  grapi:
+    autorestartgruim: false
+  # gruim:
+  #   ssl: false
+
+# ingress:
+#   enabled: true
+#   hosts:
+#     - host: myapp
+#       paths:
+#         - path: /
+#           pathType: ImplementationSpecific
+#   tls: []

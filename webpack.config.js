@@ -13,7 +13,7 @@ const prod = mode === "production";
 const App =
   mode == "production"
     ? `${process.env.CONTAINER_NAME}@${process.env.SVELTE_APP_REMOTE_URL}/remoteEntry.js`
-    : "grplmbdappgruim@http://localhost:8080/remoteEntry.js";
+    : `${process.env.CONTAINER_NAME}@${process.env.REMOTE_ENTRY_URL}`;
 
 module.exports = {
   entry: "./src/main.ts",
