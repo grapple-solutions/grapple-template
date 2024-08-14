@@ -17,7 +17,7 @@ pipelines:
       # kubectl get deploy -l app.kubernetes.io/name=grapi --for=condition=available
       start_dev grapi
       start_dev gruim              
-      start_dev mbd-cb                # 4. Start dev mode "app" (see "dev" section)
+      start_dev app                # 4. Start dev mode "app" (see "dev" section)
   # You can run this pipeline via `devspace deploy` (or `devspace run-pipeline deploy`)
   deploy:
     run: |-
@@ -29,7 +29,7 @@ pipelines:
 # This is a list of `images` that DevSpace can build for this project
 # We recommend to skip image building during development (devspace dev) as much as possible
 images:
-  mbd-cb:
+  app:
     image: docker.io/library/grpl/grapp:devspace
     dockerfile: ./Dockerfile
     buildKit: # {}
@@ -37,7 +37,7 @@ images:
 
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
-  mbd-cb:
+  app:
     # This deployment uses `helm` but you can also define `kubectl` deployments or kustomizations
     helm:
       # We are deploying this project with the Helm chart you provided
@@ -46,17 +46,17 @@ deployments:
       # Under `values` we can define the values for this Helm chart used during `helm install/upgrade`
       # You may also use `valuesFiles` to load values from files, e.g. valuesFiles: ["values.yaml"]
       valuesFiles:
-        - ./chart/values.yaml
         - ./chart/values-dev.yaml
+        - ./chart/values-devspace.yaml
       values:
         DEV: "true"
 
 # This is a list of `dev` containers that are based on the containers created by your deployments
 dev:
-  mbd-cb:
+  app:
     # Search for the container that runs this image
     labelSelector: 
-      app.kubernetes.io/instance: mbd-cb
+      app.kubernetes.io/instance: app
     # Replace the container image with this dev-optimized image (allows to skip image building during development)
     devImage: docker.io/library/grpl/grapp:devspace
     # Sync files between the local filesystem and the development container
@@ -65,12 +65,10 @@ dev:
         value: "true"
       - name: NODE_ENV
         value: "development"
-      ## this value is automatically calculated if not actively provided
-      # - name: SVELTE_APP_REMOTE_URL
-      #   value: "http://localhost:8080"
-      ## this value is automatically calculated if not actively provided
-      # - name: CONTAINER_NAME
-      #   value: "grplmbdappgruim"
+      - name: SVELTE_APP_REMOTE_URL
+        value: "http://localhost:8080"
+      - name: CONTAINER_NAME
+        value: "grplmbdappgruim"
       - name: SVELTE_APP_APP_START_DATE
         value: "2024-01-01"
       - name: SVELTE_APP_APP_END_DATE
@@ -109,7 +107,6 @@ dev:
     # Open the following URLs once they return an HTTP status code other than 502 or 503
     open:
       - url: http://localhost:4000
-      - url: http://localhost:4000/admin
 
   gruim:
     # Search for the container that runs this image
@@ -119,10 +116,10 @@ dev:
     env:
       - name: DEV
         value: "true"
-      # - name: OPENAPI_URL
-      #   value: "http://dev-app-grapi.grpl-cli.grapple-demo.com/openapi.json"
     sync:
       - path: ./gruim/shared/.:/usr/src/app/src/lib/custom-components/.
+      # - name: OPENAPI_URL
+      #   value: "http://dev-app-grapi.grpl-cli.grapple-demo.com/openapi.json"
     # restartHelper:
     #   inject: true
     #   path: "export DEV=true && ./rebuild-assets.sh"
@@ -183,25 +180,3 @@ commands:
 #   enabled: false
 # localRegistry:
 #   localbuild: truede
-
-profiles:
-- name: dev
-  patches:
-    - op: replace
-      path: deployments.mbd-cb.helm.valuesFiles[1]
-      value: ./chart/values-dev.yaml
-- name: nop
-  patches:
-    - op: replace
-      path: deployments.mbd-cb.helm.valuesFiles[1]
-      value: ./chart/values-nop.yaml
-- name: uat
-  patches:
-    - op: replace
-      path: deployments.mbd-cb.helm.valuesFiles[1]
-      value: ./chart/values-uat.yaml
-- name: prod
-  patches:
-    - op: replace
-      path: deployments.mbd-cb.helm.valuesFiles[1]
-      value: ./chart/values-production.yaml
