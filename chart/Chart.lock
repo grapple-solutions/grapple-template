@@ -1,6 +1,0 @@
-dependencies:
-- name: gras-deploy
-  repository: oci://public.ecr.aws/p7h7z5g3
-  version: 0.0.1
-digest: sha256:f1737da60beba9b70b7a71ccc525a841896cbab9912168fbbd68665b5512020c
-generated: "2024-07-16T09:41:01.867204+02:00"

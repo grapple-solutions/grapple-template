@@ -1,4 +1,4 @@
-# grpl-mbd
+# grapple-template
 
 
 ## getting started
@@ -34,8 +34,8 @@
 
 
 ### build and run using docker
-    docker build -t grpl-mbd .
-    docker run --rm -p 8080:80 grpl-mbd
+    docker build -t grapple-template .
+    docker run --rm -p 8080:80 grapple-template
 
 then open:
 http://localhost:8080

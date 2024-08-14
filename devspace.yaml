@@ -118,16 +118,9 @@ dev:
     env:
       - name: DEV
         value: "true"
-      - name: WAIT
-        value: "20"
-      ### not working :-(
-      # - name: DEV_BE_FOLDER
-      #   value: "/home/node/app/src"
     # TODO: path to the controller directory
     sync:
-      - path: ./grapi/prepatches/:/home/node/app/src/prepatches/
       - path: ./grapi/controllers/:/home/node/app/src/controllers/
-      - path: ./grapi/serviceproviders/:/home/node/app/src/services/
   
     # restartHelper:
     #   inject: true
