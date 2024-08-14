@@ -63,24 +63,6 @@ dev:
     env:
       - name: DEV
         value: "true"
-      - name: NODE_ENV
-        value: "development"
-      - name: SVELTE_APP_REMOTE_URL
-        value: "http://localhost:8080"
-      - name: CONTAINER_NAME
-        value: "grplmbdappgruim"
-      - name: SVELTE_APP_APP_START_DATE
-        value: "2024-01-01"
-      - name: SVELTE_APP_APP_END_DATE
-        value: "2024-12-31"
-      - name: SVELTE_APP_USERNAME
-        value: "patrick"
-      - name: SVELTE_APP_PASSWORD
-        value: "12345"
-      - name: SVELTE_APP_SKIP_PURCHASE_INFO
-        value: "true"
-      - name: SVELTE_APP_SKIP_DOCUMENT_PROCESSING
-        value: "false"
     sync:
       - path: ./
         excludePaths:
