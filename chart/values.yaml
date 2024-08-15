@@ -11,114 +11,141 @@ gras-deploy:
   gras: {}
   grapi:
     # beimagetag: "v0.130"
+    automigrate: true
+    autorestartgruim: false
     discoveredrepos: true
+    extraSecrets:
+    - sintiozev-conn-credential
     ingress: true
-    ssl: true
+    ssl: false
     sslissuer: letsencrypt-grapple-demo
     initContainers:
-    - name: test
+    - name: init-db
       spec:
+        command:
+        - bash
+        - -c
+        - sleep 5; while ! mysql -h $(host) -P $(port) -u $(username) -p$(password)
+          -e "show databases;" 2>/dev/null; do echo -n .; sleep 2; done; mysql -h
+          $(host) -P $(port) -u $(username) -p$(password) -e "CREATE DATABASE IF
+          NOT EXISTS sintiozev;";
+        image: mysql
         name: init-db
-        image: busybox:1.28
-        command: ['sh', '-c', "if ! test -f /data/db.json; then wget -O /data/db.json https://raw.githubusercontent.com/grapple-solutions/grapple-test-data/main/classicmodelsid/db.json; chmod 777 /data/db.json; fi"]
-    volumes:
-    - name: data
-      emptyDir: {}
-      # persistentVolumeClaim: 
-      #   claimName: grapi-dbfile
-    volumeMounts:
-    - name: data
-      mountPath: /data
     datasources:
-    - name: "db"
+    - name: sintiozev
       spec:
-        memory:
-          connector: "memory"
-          name: "db"
-          file: "/data/db.json"
-          localStorage: "db"
+        mysql:
+          database: sintiozev
+          host: $(host)
+          name: sintiozev
+          password: $(password)
+          port: $(port)
+          url: ""
+          user: $(username)
     models:
-    - name: "customers"
+    - name: "utilisations"
       spec: 
-        name: customers
+        name: utilisations
         base: Entity
         properties:
           id:
-            type: number
+            type: string
             id: true
-            required: true
-            generated: true
-          customerName:
+            required: false
+            generated: false
+            defaultFn: uuid
+          designation:
             type: string
-          customerLastname:
+          address:
             type: string
-          contactFirstName:
-            type: string
-          phone:
-            type: string
-          addressLine1:
-            type: string
-          addressLine2:
-            type: string
-          city:
-            type: string
-          state:
-            type: string
-          postalCode:
-            type: string
-          country:
-            type: string
-          creditLimit:
+          area:
             type: number
-    - name: "employees"
+          volume:
+            type: number
+          numberRooms:
+            type: number
+          costtypesId:
+            type: string
+          date:
+            type: date
+            defaultFn: now
+    - name: "users"
       spec: 
-        name: employees
+        name: users
         base: Entity
         properties:
           id:
-            type: number
+            type: string
             id: true
+            required: false
+            generated: false
+            defaultFn: uuid
+          name:
+            type: string
             required: true
-            generated: true
-          lastName:
+          address:
             type: string
-          firstName:
+          moveindate:
+            type: date
+          organisationsId:
             type: string
-          extension:
+    - name: "organisations"
+      spec: 
+        name: organisations
+        base: Entity
+        properties:
+          id:
             type: string
-          email:
+            id: true
+            required: false
+            generated: false
+            defaultFn: uuid
+          name:
             type: string
-          officesId:
+            required: true
+    - name: "costtypes"
+      spec: 
+        name: costtypes
+        base: Entity
+        properties:
+          id:
             type: string
-          reportsTo:
+            id: true
+            required: false
+            generated: false
+            defaultFn: uuid
+          name:
+            type: string
+            required: true
+          rate:
             type: number
-          jobTitle:
-            type: string
-          state:
-            type: string
-          postalCode:
-            type: string
-          country:
-            type: string
-          creditLimit:
+          baseprice:
             type: number
     relations:
-    - name: "employees"
+    - name: "organisations"
       spec:
-        relationName: "employees"
-        sourceModel: "Customers"
-        destinationModel: "Employees"
-        foreignKeyName: "employeesId"
+        relationName: "organisations"
+        sourceModel: "Users"
+        destinationModel: "Organisations"
+        foreignKeyName: "organisationsId"
+        relationType: "belongsTo"
+        registerInclusionResolver: true
+    - name: "costtypes"
+      spec:
+        relationName: "costtypes"
+        sourceModel: "Utilisations"
+        destinationModel: "Costtypes"
+        foreignKeyName: "costtypesId"
         relationType: "belongsTo"
         registerInclusionResolver: true
     restcruds:
     - name: "restcrud"
       spec:
-        datasource: "db"
+        datasource: "sintiozev"
 
   gruim:
     # uiimagetag: "0.1.38"
-    ssl: true
+    ssl: false
     sslissuer: letsencrypt-grapple-demo
     style: '{"colors":{"primary":{"DEFAULT":"#34344A","fg":"#fff"},"accent":{"DEFAULT":"#CC5A71","fg":"#fff"}}}'
     config: ""
