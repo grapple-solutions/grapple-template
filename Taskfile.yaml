@@ -79,7 +79,7 @@ vars:
         if [ "{{.STAGE}}" = "prd" ]; then
           echo ""
         elif [ "{{.STAGE}}" = "nop" ]; then
-          echo "-{{.STAGE}}_{{.GIT_HASH}}"
+          echo "-{{.STAGE}}{{.GIT_HASH}}"
         else
           echo "-{{.STAGE}}"
         fi
@@ -295,7 +295,7 @@ tasks:
         yq e -i '.image.repository = "{{.IMAGE_REGISTRY}}/{{.IMAGE_REPO}}"' {{.VALUES_YAML_PATH}}
         yq e -i '.image.tag = "{{.TAG}}"' {{.VALUES_YAML_PATH}}
 
-        helm upgrade --install {{.CHART_NAME}} {{.AWS_REPO_URL}}/{{.CHART_NAME}} --version {{.CURRENT_VERSION}} --namespace {{.NS}} --create-namespace
+        helm upgrade --install {{.CHART_NAME}} {{.AWS_REPO_URL}}/{{.CHART_NAME}} --version {{.SEMVER}} --namespace {{.NS}} --create-namespace
 
   deploy-local:
     desc: Deploy the Helm chart to the Grapple cluster
