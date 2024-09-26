@@ -1,5 +1,6 @@
 ---
 version: '3'
+silent: true
 
 vars:
   VALUES_YAML_PATH: "chart/values.yaml"
@@ -12,6 +13,9 @@ vars:
   AWS_USERNAME: "AWS"
   VERSION_FILE: "version.txt" 
   REPO_URL: "oci://public.ecr.aws/p7h7z5g3/gras"
+env:
+  OSTYPE:
+    sh: bash -c 'echo $OSTYPE'
 
 tasks:
 
@@ -27,11 +31,10 @@ tasks:
           echo "ERROR: values.yaml not found at {{.VALUES_YAML_PATH}}"
           exit 1
         fi
-      - BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
-
       - echo "2) Processing grapi injections..."
       - |
         FOLDER={{.GRAPI_INJECTION_FOLDER}}
+        BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
         BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
         if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
           for file_path in $(find ${FOLDER} -name "*.ts" -or \
@@ -63,6 +66,7 @@ tasks:
       - echo "3) Processing gruim injections..."
       - |
         FOLDER={{.GRUIM_INJECTION_FOLDER}}
+        BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
         BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
         cm="custommodules"
         if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
