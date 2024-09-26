@@ -58,13 +58,6 @@ vars:
         else
           echo "{{.CHART_NAME_SHORT}}{{.NS_EXT}}"
         fi
-  TAG:
-    sh: |
-        if [ "{{.STAGE}}" = "prd" ]; then
-          echo "{{.CURRENT_VERSION}}"
-        else
-          echo "{{.CURRENT_VERSION}}{{.TAG_EXT}}"
-        fi
   TAG_EXT:
     sh: |
         if [ "{{.STAGE}}" = "prd" ]; then
@@ -73,6 +66,29 @@ vars:
           echo ".{{.STAGE}}-{{.GIT_HASH}}"
         else
           echo ".{{.STAGE}}"
+        fi
+  TAG:
+    sh: |
+        if [ "{{.STAGE}}" = "prd" ]; then
+          echo "{{.CURRENT_VERSION}}"
+        else
+          echo "{{.CURRENT_VERSION}}{{.TAG_EXT}}"
+        fi
+  SEMVER_EXT:
+    sh: |
+        if [ "{{.STAGE}}" = "prd" ]; then
+          echo ""
+        elif [ "{{.STAGE}}" = "nop" ]; then
+          echo "-{{.STAGE}}_{{.GIT_HASH}}"
+        else
+          echo "-{{.STAGE}}"
+        fi
+  SEMVER:
+    sh: |
+        if [ "{{.STAGE}}" = "prd" ]; then
+          echo "{{.CURRENT_VERSION}}"
+        else
+          echo "{{.CURRENT_VERSION}}{{.SEMVER_EXT}}"
         fi
   AWS_REGION: "us-east-1"
   AWS_USERNAME: "AWS"
@@ -235,9 +251,10 @@ tasks:
         helm dep up chart
 
         # build the helm package
-        helm package chart --version {{.CURRENT_VERSION}}
+        echo {{.SEMVER}}
+        helm package chart --version {{.SEMVER}}
 
-        echo "helm package created in: ./{{.CHART_NAME}}-{{.CURRENT_VERSION}}.tgz"
+        echo "helm package created in: ./{{.CHART_NAME}}-{{.SEMVER}}.tgz"
 
   push-chart-aws:
     desc: Push the packaged Helm chart to the repository
@@ -248,6 +265,15 @@ tasks:
       - |
         # had to add a sleep here to ensure the package is built - when package and push is called right after each other
         sleep 2
+
+        # patch the chart:
+        yq e -i '.version = "{{.SEMVER}}"' {{.CHART_FOLDER}}/Chart.yaml
+        yq e -i '.appVersion = "{{.CURRENT_VERSION}}"' {{.CHART_FOLDER}}/Chart.yaml
+
+        # patch the image:
+        yq e -i '.image.repository = "{{.IMAGE_REGISTRY}}/{{.IMAGE_REPO}}"' {{.VALUES_YAML_PATH}}
+        yq e -i '.image.tag = "{{.TAG}}"' {{.VALUES_YAML_PATH}}
+
         AWS_ACCESS_KEY_ID={{.AWS_ACCESS_KEY_ID}}
         AWS_SECRET_ACCESS_KEY={{.AWS_SECRET_ACCESS_KEY}}
         aws ecr-public get-login-password \
@@ -255,7 +281,7 @@ tasks:
           --username {{.AWS_USERNAME}} \
           --password-stdin {{.REGISTRY}}
         aws ecr-public create-repository --repository-name {{.CHART_NAME}} --region {{.AWS_REGION}} 2>/dev/null || true
-        helm push {{.CHART_NAME}}-{{.CURRENT_VERSION}}.tgz {{.AWS_REPO_URL}}
+        helm push {{.CHART_NAME}}-{{.SEMVER}}.tgz {{.AWS_REPO_URL}} || (echo "ERROR: helm chart could not be pushed. Did you provide AWS credentials?" && exit 99)
 
   deploy:
     desc: Deploy the Helm chart to the Grapple cluster
