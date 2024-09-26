@@ -298,3 +298,12 @@ tasks:
       - task: patch-values-file
       - task: package-chart
       - task: push-chart-aws
+
+  build-package-push-deploy:
+    desc: Build, package, and push the Helm chart in one step
+    cmds:
+      - task: build-and-push-images
+      - task: patch-values-file
+      - task: package-chart
+      - task: push-chart-aws
+      - task: deploy
