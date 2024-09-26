@@ -4,9 +4,8 @@
 
 
 env: {}
-
 # configuration for grapple ApplicationSet (gras)
-gras-deploy: 
+gras-deploy:
   enabled: true
   gras: {}
   grapi:
@@ -16,106 +15,108 @@ gras-deploy:
     ssl: true
     sslissuer: letsencrypt-grapple-demo
     initContainers:
-    - name: test
-      spec:
-        name: init-db
-        image: busybox:1.28
-        command: ['sh', '-c', "if ! test -f /data/db.json; then wget -O /data/db.json https://raw.githubusercontent.com/grapple-solutions/grapple-test-data/main/classicmodelsid/db.json; chmod 777 /data/db.json; fi"]
+      - name: test
+        spec:
+          name: init-db
+          image: busybox:1.28
+          command: ['sh', '-c', "if ! test -f /data/db.json; then wget -O /data/db.json https://raw.githubusercontent.com/grapple-solutions/grapple-test-data/main/classicmodelsid/db.json; chmod 777 /data/db.json; fi"]
     volumes:
-    - name: data
-      emptyDir: {}
-      # persistentVolumeClaim: 
-      #   claimName: grapi-dbfile
+      - name: data
+        emptyDir: {}
+        # persistentVolumeClaim: 
+        #   claimName: grapi-dbfile
     volumeMounts:
-    - name: data
-      mountPath: /data
+      - name: data
+        mountPath: /data
     datasources:
-    - name: "db"
-      spec:
-        memory:
-          connector: "memory"
-          name: "db"
-          file: "/data/db.json"
-          localStorage: "db"
+      - name: "db"
+        spec:
+          memory:
+            connector: "memory"
+            name: "db"
+            file: "/data/db.json"
+            localStorage: "db"
     models:
-    - name: "customers"
-      spec: 
-        name: customers
-        base: Entity
-        properties:
-          id:
-            type: number
-            id: true
-            required: true
-            generated: true
-          customerName:
-            type: string
-          customerLastname:
-            type: string
-          contactFirstName:
-            type: string
-          phone:
-            type: string
-          addressLine1:
-            type: string
-          addressLine2:
-            type: string
-          city:
-            type: string
-          state:
-            type: string
-          postalCode:
-            type: string
-          country:
-            type: string
-          creditLimit:
-            type: number
-    - name: "employees"
-      spec: 
-        name: employees
-        base: Entity
-        properties:
-          id:
-            type: number
-            id: true
-            required: true
-            generated: true
-          lastName:
-            type: string
-          firstName:
-            type: string
-          extension:
-            type: string
-          email:
-            type: string
-          officesId:
-            type: string
-          reportsTo:
-            type: number
-          jobTitle:
-            type: string
-          state:
-            type: string
-          postalCode:
-            type: string
-          country:
-            type: string
-          creditLimit:
-            type: number
+      - name: "customers"
+        spec:
+          name: customers
+          base: Entity
+          properties:
+            id:
+              type: number
+              id: true
+              required: true
+              generated: true
+            customerName:
+              type: string
+            customerLastname:
+              type: string
+            contactFirstName:
+              type: string
+            phone:
+              type: string
+            addressLine1:
+              type: string
+            addressLine2:
+              type: string
+            city:
+              type: string
+            state:
+              type: string
+            postalCode:
+              type: string
+            country:
+              type: string
+            creditLimit:
+              type: number
+      - name: "employees"
+        spec:
+          name: employees
+          base: Entity
+          properties:
+            id:
+              type: number
+              id: true
+              required: true
+              generated: true
+            lastName:
+              type: string
+            firstName:
+              type: string
+            extension:
+              type: string
+            email:
+              type: string
+            officesId:
+              type: string
+            reportsTo:
+              type: number
+            jobTitle:
+              type: string
+            state:
+              type: string
+            postalCode:
+              type: string
+            country:
+              type: string
+            creditLimit:
+              type: number
     relations:
-    - name: "employees"
-      spec:
-        relationName: "employees"
-        sourceModel: "Customers"
-        destinationModel: "Employees"
-        foreignKeyName: "employeesId"
-        relationType: "belongsTo"
-        registerInclusionResolver: true
+      - name: "employees"
+        spec:
+          relationName: "employees"
+          sourceModel: "Customers"
+          destinationModel: "Employees"
+          foreignKeyName: "employeesId"
+          relationType: "belongsTo"
+          registerInclusionResolver: true
     restcruds:
-    - name: "restcrud"
-      spec:
-        datasource: "db"
-
+      - name: "restcrud"
+        spec:
+          datasource: "db"
+    controllers:
+      - name: ping2
+        content: ""
   gruim:
     # uiimagetag: "0.1.38"
     ssl: true
@@ -123,10 +124,10 @@ gras-deploy:
     style: '{"colors":{"primary":{"DEFAULT":"#34344A","fg":"#fff"},"accent":{"DEFAULT":"#CC5A71","fg":"#fff"}}}'
     config: ""
     additionalpackages: ""
-
-
+    custommodules:
+      - name: trainerDropDown
+        content: ""
 replicaCount: 1
-
 image:
   repository: app
   pullPolicy: IfNotPresent
@@ -137,11 +138,9 @@ imagetest:
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
-
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
-
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -150,30 +149,27 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
-
 podAnnotations: {}
-
 podSecurityContext: {}
-  # fsGroup: 2000
+# fsGroup: 2000
 
 securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+# capabilities:
+#   drop:
+#   - ALL
+# readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 1000
 
 service:
   type: ClusterIP
   port: 80
-
 ingress:
   enabled: false
   className: ""
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
   hosts:
     - host: chart-example.local
       paths:
@@ -183,18 +179,17 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-
 resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify resources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
 
 autoscaling:
   enabled: false
@@ -202,9 +197,6 @@ autoscaling:
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
-
 nodeSelector: {}
-
 tolerations: []
-
 affinity: {}
