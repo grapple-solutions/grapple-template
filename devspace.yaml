@@ -1,6 +1,12 @@
 version: v2beta1
 name: grapple-template
 
+vars:
+- name: IMAGE_REGISTRY
+  value: "docker.io/library/grpl"
+- name: IMAGE_REPO
+  value: "grapp"
+
 # This is a list of `pipelines` that DevSpace can execute (you can define your own)
 pipelines:
   # This is the pipeline for the main command: `devspace dev` (or `devspace run-pipeline dev`)
@@ -30,7 +36,7 @@ pipelines:
 # We recommend to skip image building during development (devspace dev) as much as possible
 images:
   app:
-    image: docker.io/library/grpl/grapp:devspace
+    image: ${IMAGE_REGISTRY}/${IMAGE_REPO}:devspace
     dockerfile: ./Dockerfile
     buildKit: # {}
       args: [--platform, 'linux/amd64,linux/arm64']

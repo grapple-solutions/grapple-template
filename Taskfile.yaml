@@ -21,6 +21,21 @@ vars:
           acronym+="${word:0:4}"
         done
         echo "$acronym"
+  STAGE: '{{.STAGE | default "prd"}}'
+  NS_EXT:
+    sh: |
+        if [ "{{.STAGE}}" = "prd" ]; then
+          echo ""
+        else
+          echo "-{{.STAGE}}"
+        fi
+  TAG_EXT:
+    sh: |
+        if [ "{{.STAGE}}" = "prd" ]; then
+          echo ""
+        else
+          echo ".{{.STAGE}}"
+        fi
   AWS_REGION: "us-east-1"
   AWS_USERNAME: "AWS"
   AWS_REPO_URL: "oci://public.ecr.aws/p7h7z5g3"
@@ -30,13 +45,12 @@ vars:
     sh: git log -n 1 --format=%h
   CURRENT_VERSION:
     sh: |
-        cd {{.CHART_FOLDER}}
         # Check if version file exists
-        if [ ! -f "{{.VERSION_FILE}}" ]; then
+        if [ ! -f "{{.CHART_FOLDER}}/{{.VERSION_FILE}}" ]; then
           # If version file does not exist, create it with initial version 0.1.0
-          echo "0.1.0" > {{.VERSION_FILE}}
+          echo "0.1.0" > {{.CHART_FOLDER}}/{{.VERSION_FILE}}
         fi
-        CURRENT_VERSION=$(cat {{.VERSION_FILE}})
+        CURRENT_VERSION=$(cat {{.CHART_FOLDER}}/{{.VERSION_FILE}})
         echo ${CURRENT_VERSION}
 
 env:
@@ -44,6 +58,19 @@ env:
     sh: bash -c 'echo $OSTYPE'
 
 tasks:
+
+  build-images:
+    desc: Build the images
+    cmds:
+      - |
+        # yq e -i '.vars | select() = "{{.CHART_NAME}}"' devspace.yaml
+        devspace build --skip-push --tag {{.CURRENT_VERSION}}{{.TAG_EXT}}
+
+  build-and-push-images:
+    desc: Build the images
+    cmds:
+      - |
+        devspace build --tag {{.CURRENT_VERSION}}{{.TAG_EXT}}
 
   patch-values-file:
     desc: Gather and encode backend (grapi) and frontend (gruim) injections 
@@ -126,8 +153,6 @@ tasks:
     desc: Bump the version
     cmds:
       - |
-        cd {{.CHART_FOLDER}}
-        
         # Split the version into major, minor, and patch components
         IFS='.' read -r major minor patch <<< "{{.CURRENT_VERSION}}"
         
@@ -147,7 +172,7 @@ tasks:
         fi
         
         NEW_VERSION="${major}.${minor}.${patch}"        
-        echo $NEW_VERSION > {{.VERSION_FILE}}
+        echo $NEW_VERSION > {{.CHART_FOLDER}}/{{.VERSION_FILE}}
 
   package-chart:
     desc: Package the Helm chart
@@ -162,6 +187,8 @@ tasks:
         # build the helm package
         helm package chart --version {{.CURRENT_VERSION}}
 
+        echo "helm package created in: ./{{.CHART_NAME}}-{{.CURRENT_VERSION}}.tgz"
+
   push-chart-aws:
     desc: Push the packaged Helm chart to the repository
     env:
@@ -169,6 +196,8 @@ tasks:
       AWS_SECRET_ACCESS_KEY: '{{.AWS_SECRET_ACCESS_KEY}}'
     cmds:
       - |
+        # had to add a sleep here to ensure the package is built - when package and push is called right after each other
+        sleep 2
         AWS_ACCESS_KEY_ID={{.AWS_ACCESS_KEY_ID}}
         AWS_SECRET_ACCESS_KEY={{.AWS_SECRET_ACCESS_KEY}}
         aws ecr-public get-login-password \
@@ -180,17 +209,9 @@ tasks:
 
   deploy:
     desc: Deploy the Helm chart to the Grapple cluster
-    env:
-      STAGE: '{{.STAGE | default "prd"}}'
     cmds:
       - |
-        cd {{.CHART_FOLDER}}
-        if [ "${STAGE}" = "prd" ]; then
-          NS_EXT=""
-        else
-          NS_EXT="-${STAGE}"
-        fi
-        helm upgrade --install {{.CHART_NAME}} {{.AWS_REPO_URL}}/{{.CHART_NAME}} --version {{.CURRENT_VERSION}} --namespace {{.CHART_NAME}}${NS_EXT} --create-namespace
+        helm upgrade --install {{.CHART_NAME}} {{.AWS_REPO_URL}}/{{.CHART_NAME}} --version {{.CURRENT_VERSION}} --namespace {{.CHART_NAME}}{{.NS_EXT}} --create-namespace
 
   deploy-local:
     desc: Deploy the Helm chart to the Grapple cluster
@@ -204,6 +225,7 @@ tasks:
   build-package-push:
     desc: Build, package, and push the Helm chart in one step
     deps:
+      - build-and-push-images
       - patch-values-file
       - package-chart
       - push-chart-aws
