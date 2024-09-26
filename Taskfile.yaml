@@ -8,7 +8,8 @@ vars:
   GRUIM_INJECTION_FOLDER: "gruim"
   BASE: "gras-deploy"
   CHART_FOLDER: "./chart"
-  CHART_NAME: "gras-deploy"
+  CHART_NAME: # use the current folder as the chart name
+    sh: echo ${PWD##*/}
   AWS_REGION: "us-east-1"
   AWS_USERNAME: "AWS"
   VERSION_FILE: "version.txt" 
@@ -114,14 +115,14 @@ tasks:
         # Increment the patch version
         patch=$((patch + 1))
         
-        # If patch reaches 10, reset to 0 and increment minor version
-        if [ "$patch" -ge 10 ]; then
+        # If patch reaches 100, reset to 0 and increment minor version
+        if [ "$patch" -ge 100 ]; then
           patch=0
           minor=$((minor + 1))
         fi
         
-        # If minor reaches 10, reset to 0 and increment major version
-        if [ "$minor" -ge 10 ]; then
+        # If minor reaches 100, reset to 0 and increment major version
+        if [ "$minor" -ge 100 ]; then
           minor=0
           major=$((major + 1))
         fi
@@ -129,12 +130,13 @@ tasks:
         NEW_VERSION="${major}.${minor}.${patch}"        
         echo $NEW_VERSION > {{.VERSION_FILE}}
         
-        cp Chart.yaml Chart.yaml.bak
-
         yq e -i '.name = "{{.CHART_NAME}}"' Chart.yaml
+
+        # run dependency update in order to prevent issue on the first build
+        helm dep up
+
+        # build the helm package
         helm package . --version $NEW_VERSION
-        
-        mv Chart.yaml.bak Chart.yaml
 
   push-chart:
     desc: Push the packaged Helm chart to the repository
