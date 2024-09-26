@@ -27,6 +27,7 @@ tasks:
           echo "ERROR: values.yaml not found at {{.VALUES_YAML_PATH}}"
           exit 1
         fi
+      - BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
 
       - echo "2) Processing grapi injections..."
       - |
@@ -44,7 +45,7 @@ tasks:
               "s,.${group_name}.${file_extension},,g" | sed \
               "s,.${group_name::${#group_name}-1}.${file_extension},,g" | \
               sed "s,.${file_extension},,g")
-            base64_content=$(cat ${file_path} | base64 -w 0)  # Base64 on single line
+            base64_content=$(cat ${file_path} | ${BASE64})  # Base64 on single line
             if [ "${file_name}" = "index.ts" ]; then continue; fi
             echo "patching: ${FOLDER} - ${group_name} - ${injection_name} - \
               ${file_name}"
@@ -77,7 +78,7 @@ tasks:
               "s,.${group_name::${#group_name}-1}.${file_extension},,g" | \
               sed "s,.${file_extension},,g")
             injection_name=$(echo ${file_name} | sed "s,.${file_extension},,g")
-            base64_content=$(cat ${file_path} | base64 -w 0)  # Base64 on single line
+            base64_content=$(cat ${file_path} | ${BASE64})  # Base64 on single line
             if [ "${file_name}" = "index.ts" ]; then continue; fi
             echo "patching: ${FOLDER} - ${cm} - ${injection_name} - \
               ${file_name}"
