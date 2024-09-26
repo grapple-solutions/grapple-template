@@ -245,7 +245,7 @@ tasks:
 
         # patch the image:
         yq e -i '.image.repository = "{{.IMAGE_REGISTRY}}/{{.IMAGE_REPO}}"' {{.VALUES_YAML_PATH}}
-        yq e -i '.image.tag = "{{.CURRENT_VERSION}}"' {{.VALUES_YAML_PATH}}
+        yq e -i '.image.tag = "{{.TAG}}"' {{.VALUES_YAML_PATH}}
 
         # run dependency update in order to prevent issue on the first build
         helm dep up chart
