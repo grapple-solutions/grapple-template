@@ -123,7 +123,7 @@ tasks:
       STAGE:
         sh: if [ "{{.STAGE}}" = "" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
       TAG:
-        sh: if [ "{{.STAGE}}" = "" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}"" fi
+        sh: if [ "{{.STAGE}}" = "" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}" fi
     cmds:
       - |
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
@@ -136,7 +136,7 @@ tasks:
       STAGE:
         sh: if [ "{{.STAGE}}" = "" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
       TAG:
-        sh: if [ "{{.STAGE}}" = "" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}"" fi
+        sh: if [ "{{.STAGE}}" = "" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}" fi
     cmds:
       - |
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
@@ -312,7 +312,7 @@ tasks:
       STAGE:
         sh: if [ "{{.STAGE}}" = "" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
       TAG:
-        sh: if [ "{{.STAGE}}" = "" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}"" fi
+        sh: if [ "{{.STAGE}}" = "" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}" fi
     cmds:
       - |
         # patch the chart:
