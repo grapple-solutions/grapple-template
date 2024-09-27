@@ -1,23 +1,13 @@
 version: v2beta1
 name: grapple-template
-
+vars:
+  IMAGE_REGISTRY: "grpl"
+  IMAGE_REPO: "grapple-template"
 # This is a list of `pipelines` that DevSpace can execute (you can define your own)
 pipelines:
   # This is the pipeline for the main command: `devspace dev` (or `devspace run-pipeline dev`)
   dev:
-    run: |-
-      run_dependencies --all       # 1. Deploy any projects this project needs (see "dependencies")
-      ensure_pull_secrets --all    # 2. Ensure pull secrets
-      build_images --all -t $(git describe --always)    # 3. Build, tag (git commit hash) and push all images (see "images")
-      create_deployments --all     # 3. Deploy Helm charts and manifests specfied as "deployments"
-      echo "waiting on chart deployment..."
-      # TODO: find a solution for windows (while is not working on windows)...
-      sleep 20
-      # while ! kubectl get deploy -l app.kubernetes.io/name=grapi 2>/dev/null | grep grapi; do echo -n "."; sleep 1; done
-      # kubectl get deploy -l app.kubernetes.io/name=grapi --for=condition=available
-      start_dev grapi
-      start_dev gruim              
-      start_dev app                # 4. Start dev mode "app" (see "dev" section)
+    run: "run_dependencies --all       # 1. Deploy any projects this project needs (see \"dependencies\")\nensure_pull_secrets --all    # 2. Ensure pull secrets\nbuild_images --all -t $(git describe --always)    # 3. Build, tag (git commit hash) and push all images (see \"images\")\ncreate_deployments --all     # 3. Deploy Helm charts and manifests specfied as \"deployments\"\necho \"waiting on chart deployment...\"\n# TODO: find a solution for windows (while is not working on windows)...\nsleep 20\n# while ! kubectl get deploy -l app.kubernetes.io/name=grapi 2>/dev/null | grep grapi; do echo -n \".\"; sleep 1; done\n# kubectl get deploy -l app.kubernetes.io/name=grapi --for=condition=available\nstart_dev grapi\nstart_dev gruim              \nstart_dev app                # 4. Start dev mode \"app\" (see \"dev\" section)"
   # You can run this pipeline via `devspace deploy` (or `devspace run-pipeline deploy`)
   deploy:
     run: |-
@@ -25,16 +15,14 @@ pipelines:
       ensure_pull_secrets --all                         # 2. Ensure pull secrets
       build_images --all -t $(git describe --always)    # 3. Build, tag (git commit hash) and push all images (see "images")
       create_deployments --all                          # 4. Deploy Helm charts and manifests specfied as "deployments"
-
 # This is a list of `images` that DevSpace can build for this project
 # We recommend to skip image building during development (devspace dev) as much as possible
 images:
   app:
-    image: docker.io/library/grpl/grapp:devspace
+    image: "${IMAGE_REGISTRY}/${IMAGE_REPO}:devspace"
     dockerfile: ./Dockerfile
     buildKit: # {}
       args: [--platform, 'linux/amd64,linux/arm64']
-
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
   app:
@@ -50,12 +38,11 @@ deployments:
         - ./chart/values-devspace.yaml
       values:
         DEV: "true"
-
 # This is a list of `dev` containers that are based on the containers created by your deployments
 dev:
   app:
     # Search for the container that runs this image
-    labelSelector: 
+    labelSelector:
       app.kubernetes.io/instance: app
     # Replace the container image with this dev-optimized image (allows to skip image building during development)
     devImage: docker.io/library/grpl/grapp:devspace
@@ -89,30 +76,28 @@ dev:
     # Open the following URLs once they return an HTTP status code other than 502 or 503
     open:
       - url: http://localhost:4000
-
   gruim:
     # Search for the container that runs this image
-    labelSelector: 
+    labelSelector:
       app.kubernetes.io/name: gruim
-    devImage:  docker.io/grpl/gruim:0.2.4
+    devImage: docker.io/grpl/gruim:0.2.4
     env:
       - name: DEV
         value: "true"
     sync:
       - path: ./gruim/shared/.:/usr/src/app/src/lib/custom-components/.
-      # - name: OPENAPI_URL
-      #   value: "http://dev-app-grapi.grpl-cli.grapple-demo.com/openapi.json"
+        # - name: OPENAPI_URL
+        #   value: "http://dev-app-grapi.grpl-cli.grapple-demo.com/openapi.json"
     # restartHelper:
     #   inject: true
     #   path: "export DEV=true && ./rebuild-assets.sh"
     ports:
-    - port: "8080:8080"
+      - port: "8080:8080"
     open:
       - url: http://localhost:8080
-
   grapi:
     # Search for the container that runs this image
-    labelSelector: 
+    labelSelector:
       app.kubernetes.io/name: grapi
     devImage: docker.io/grpl/grapi:0.2.4
     env:
@@ -121,15 +106,13 @@ dev:
     # TODO: path to the controller directory
     sync:
       - path: ./grapi/controllers/:/home/node/app/src/controllers/
-  
     # restartHelper:
     #   inject: true
     #   path: "export DEV=true && ./start.sh"
     ports:
-    - port: "3000:3000" 
+      - port: "3000:3000"
     open:
       - url: http://localhost:3000
-
 # Use the `commands` section to define repeatable dev workflows for this project 
 commands:
   gruim:
@@ -142,7 +125,6 @@ commands:
     command: |-
       devspace enter --label-selector app.kubernetes.io/name=grapi npm run build && \
       devspace enter --label-selector app.kubernetes.io/name=grapi npm run migrate
-
 # Define dependencies to other projects with a devspace.yaml
 # dependencies:
 #   api:
@@ -150,7 +132,6 @@ commands:
 #     tag: v1.0.0
 #   ui:
 #     path: ./ui        # Path-based dependencies (for monorepos)
-
 # localRegistry:
 #   enabled: false
 # localRegistry:

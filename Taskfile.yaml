@@ -1,0 +1,335 @@
+---
+version: '3'
+silent: true
+
+vars:
+  VALUES_YAML_PATH: "chart/values.yaml"
+  GRAPI_INJECTION_FOLDER: "grapi"
+  GRUIM_INJECTION_FOLDER: "gruim"
+  BASE: "gras-deploy"
+  CHART_FOLDER: "./chart"
+  CHART_NAME: # use the current folder as the chart name
+    sh: echo ${PWD##*/}
+  CHART_NAME_SHORT: # use the current folder as the chart name
+    sh: |
+        string="${PWD##*/}"
+        string="${string//[.\']/}"
+        string="${string//[!a-zA-Z ]/ }"
+        acronym=''
+        for word in ${string}
+        do
+          acronym+="${word:0:4}"
+        done
+        echo "$acronym"
+  VERSION_FILE: "version.txt" 
+  CURRENT_VERSION:
+    sh: |
+        # Check if version file exists
+        if [ ! -f "{{.CHART_FOLDER}}/{{.VERSION_FILE}}" ]; then
+          # If version file does not exist, create it with initial version 0.1.0
+          echo "0.1.0" > {{.CHART_FOLDER}}/{{.VERSION_FILE}}
+        fi
+        CURRENT_VERSION=$(cat {{.CHART_FOLDER}}/{{.VERSION_FILE}})
+        echo ${CURRENT_VERSION}
+  STAGE: '{{.STAGE | default "prd"}}'
+  GIT_HASH:
+    sh: git log -n 1 --format=%h
+  IMAGE_REGISTRY: '{{.IMAGE_REGISTRY | default "grpl"}}'
+  IMAGE_REPO:
+    sh: |
+        if [ "{{.IMAGE_REPO}}" = "" ]; then
+          echo "{{.CHART_NAME}}"
+        else
+          echo "{{.IMAGE_REPO}}"
+        fi
+  NS_EXT:
+    sh: |
+        if [ "{{.STAGE}}" = "prd" ]; then
+          echo ""
+        elif [ "{{.STAGE}}" = "nop" ]; then
+          echo "-{{.STAGE}}-{{.GIT_HASH}}"
+        else
+          echo "-{{.STAGE}}"
+        fi
+  NS:
+    sh: |
+        if [ "{{.STAGE}}" = "prd" ]; then
+          echo "{{.CHART_NAME}}"
+        else
+          echo "{{.CHART_NAME_SHORT}}{{.NS_EXT}}"
+        fi
+  TAG_EXT:
+    sh: |
+        if [ "{{.STAGE}}" = "prd" ]; then
+          echo ""
+        elif [ "{{.STAGE}}" = "nop" ]; then
+          echo ".{{.STAGE}}-{{.GIT_HASH}}"
+        else
+          echo ".{{.STAGE}}"
+        fi
+  TAG:
+    sh: |
+        if [ "{{.STAGE}}" = "prd" ]; then
+          echo "{{.CURRENT_VERSION}}"
+        else
+          echo "{{.CURRENT_VERSION}}{{.TAG_EXT}}"
+        fi
+  SEMVER_EXT:
+    sh: |
+        if [ "{{.STAGE}}" = "prd" ]; then
+          echo ""
+        elif [ "{{.STAGE}}" = "nop" ]; then
+          echo "-{{.STAGE}}{{.GIT_HASH}}"
+        else
+          echo "-{{.STAGE}}"
+        fi
+  SEMVER:
+    sh: |
+        if [ "{{.STAGE}}" = "prd" ]; then
+          echo "{{.CURRENT_VERSION}}"
+        else
+          echo "{{.CURRENT_VERSION}}{{.SEMVER_EXT}}"
+        fi
+  AWS_REGION: "us-east-1"
+  AWS_USERNAME: "AWS"
+  AWS_REPO_URL: "oci://public.ecr.aws/p7h7z5g3"
+  REGISTRY: "public.ecr.aws"
+
+env:
+  OSTYPE:
+    sh: bash -c 'echo $OSTYPE'
+
+tasks:
+
+  build-images:
+    desc: Build the images
+    cmds:
+      - |
+        yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
+        yq e -i '.vars.IMAGE_REPO = "{{.IMAGE_REPO}}"' devspace.yaml
+        devspace build --skip-push --tag {{.TAG}} -n default --no-warn
+
+  build-and-push-images:
+    desc: Build the images
+    cmds:
+      - |
+        yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
+        yq e -i '.vars.IMAGE_REPO = "{{.IMAGE_REPO}}"' devspace.yaml
+        devspace build --tag {{.TAG}} -n default --no-warn
+
+  build-images-local:
+    desc: Build the images
+    cmds:
+      - |
+        yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
+        yq e -i '.vars.IMAGE_REPO = "{{.IMAGE_REPO}}"' devspace.yaml
+        devspace build --skip-push --tag {{.TAG}}-dev.{{.GIT_HASH}} -n default --no-warn
+
+  build-and-push-images-local:
+    desc: Build the images
+    cmds:
+      - |
+        yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
+        yq e -i '.vars.IMAGE_REPO = "{{.IMAGE_REPO}}"' devspace.yaml
+        echo "TAG: {{.TAG}}"
+        devspace build --tag "{{.TAG}}-dev.{{.GIT_HASH}}" -n default --no-warn
+
+  patch-values-file:
+    desc: Gather and encode backend (grapi) and frontend (gruim) injections 
+          and update values.yaml
+    cmds:
+      - echo "1) Checking if values.yaml exists..."
+      - |
+        if [ -f "{{.VALUES_YAML_PATH}}" ]; then
+          echo "values.yaml found at {{.VALUES_YAML_PATH}}"
+        else
+          echo "ERROR: values.yaml not found at {{.VALUES_YAML_PATH}}"
+          exit 1
+        fi
+      - echo "2) Processing grapi injections..."
+      - |
+        FOLDER={{.GRAPI_INJECTION_FOLDER}}
+        BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
+        BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
+        if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
+          for file_path in $(find ${FOLDER} -name "*.ts" -or \
+            -name "*.sh" -or -name "*.bash"); do  
+            group_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
+              cut -d/ -f1)
+            file_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
+              cut -d/ -f2)
+            file_extension=$(echo ${file_name##*.})
+            injection_name=$(echo ${file_name} | sed \
+              "s,.${group_name}.${file_extension},,g" | sed \
+              "s,.${group_name::${#group_name}-1}.${file_extension},,g" | \
+              sed "s,.${file_extension},,g")
+            base64_content=$(cat ${file_path} | ${BASE64})  # Base64 on single line
+            if [ "${file_name}" = "index.ts" ]; then continue; fi
+            echo "patching: ${FOLDER} - ${group_name} - ${injection_name} - \
+              ${file_name}"
+            yq -i "del(.${BASE}.${FOLDER}.${group_name}[] | \
+              select(.name == \"${injection_name}\"))" {{.VALUES_YAML_PATH}}
+            yq -i ".${BASE}.${FOLDER}.${group_name} += [{\"name\": \
+              \"${injection_name}\", \"content\": \"${base64_content}\"}]" \
+              {{.VALUES_YAML_PATH}}
+          done
+        else
+          echo "failed to add ${FOLDER} values..."
+          exit 99
+        fi
+
+      - echo "3) Processing gruim injections..."
+      - |
+        FOLDER={{.GRUIM_INJECTION_FOLDER}}
+        BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
+        BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
+        cm="custommodules"
+        if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
+          yq -i "del(.${BASE}.${FOLDER}.${cm}[])" {{.VALUES_YAML_PATH}}
+          for file_path in $(find ${FOLDER}/shared -name "*.svelte"); do 
+            group_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
+              cut -d/ -f1)
+            file_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
+              cut -d/ -f2)
+            file_extension=$(echo ${file_name##*.})
+            injection_name=$(echo ${file_name} | sed \
+              "s,.${group_name}.${file_extension},,g" | sed \
+              "s,.${group_name::${#group_name}-1}.${file_extension},,g" | \
+              sed "s,.${file_extension},,g")
+            injection_name=$(echo ${file_name} | sed "s,.${file_extension},,g")
+            base64_content=$(cat ${file_path} | ${BASE64})  # Base64 on single line
+            if [ "${file_name}" = "index.ts" ]; then continue; fi
+            echo "patching: ${FOLDER} - ${cm} - ${injection_name} - \
+              ${file_name}"
+            yq -i ".${BASE}.${FOLDER}.${cm} += [{\"name\": \
+              \"${injection_name}\", \"content\": \"${base64_content}\"}]" \
+              {{.VALUES_YAML_PATH}}
+          done
+        else
+          echo "failed to add ${FOLDER} values..."
+          exit 99
+        fi
+
+
+  version-bump:
+    desc: Bump the version
+    cmds:
+      - |
+        # Split the version into major, minor, and patch components
+        IFS='.' read -r major minor patch <<< "{{.CURRENT_VERSION}}"
+        
+        # Increment the patch version
+        patch=$((patch + 1))
+        
+        # If patch reaches 100, reset to 0 and increment minor version
+        if [ "$patch" -ge 100 ]; then
+          patch=0
+          minor=$((minor + 1))
+        fi
+        
+        # If minor reaches 100, reset to 0 and increment major version
+        if [ "$minor" -ge 100 ]; then
+          minor=0
+          major=$((major + 1))
+        fi
+        
+        NEW_VERSION="${major}.${minor}.${patch}"        
+        echo $NEW_VERSION > {{.CHART_FOLDER}}/{{.VERSION_FILE}}
+
+  package-chart:
+    desc: Package the Helm chart
+    cmds:
+      - |
+        # rename the chart properly
+        yq e -i '.name = "{{.CHART_NAME}}"' {{.CHART_FOLDER}}/Chart.yaml
+
+        # patch the image:
+        yq e -i '.image.repository = "{{.IMAGE_REGISTRY}}/{{.IMAGE_REPO}}"' {{.VALUES_YAML_PATH}}
+        yq e -i '.image.tag = "{{.TAG}}"' {{.VALUES_YAML_PATH}}
+
+        # run dependency update in order to prevent issue on the first build
+        helm dep up chart
+
+        # build the helm package
+        echo {{.SEMVER}}
+        helm package chart --version {{.SEMVER}}
+
+        echo "helm package created in: ./{{.CHART_NAME}}-{{.SEMVER}}.tgz"
+
+  push-chart-aws:
+    desc: Push the packaged Helm chart to the repository
+    env:
+      AWS_ACCESS_KEY_ID: '{{.AWS_ACCESS_KEY_ID}}'
+      AWS_SECRET_ACCESS_KEY: '{{.AWS_SECRET_ACCESS_KEY}}'
+    cmds:
+      - |
+        # had to add a sleep here to ensure the package is built - when package and push is called right after each other
+        sleep 2
+
+        # patch the chart:
+        yq e -i '.version = "{{.SEMVER}}"' {{.CHART_FOLDER}}/Chart.yaml
+        yq e -i '.appVersion = "{{.CURRENT_VERSION}}"' {{.CHART_FOLDER}}/Chart.yaml
+
+        # patch the image:
+        yq e -i '.image.repository = "{{.IMAGE_REGISTRY}}/{{.IMAGE_REPO}}"' {{.VALUES_YAML_PATH}}
+        yq e -i '.image.tag = "{{.TAG}}"' {{.VALUES_YAML_PATH}}
+
+        AWS_ACCESS_KEY_ID={{.AWS_ACCESS_KEY_ID}}
+        AWS_SECRET_ACCESS_KEY={{.AWS_SECRET_ACCESS_KEY}}
+        aws ecr-public get-login-password \
+          --region {{.AWS_REGION}} | helm registry login \
+          --username {{.AWS_USERNAME}} \
+          --password-stdin {{.REGISTRY}}
+        aws ecr-public create-repository --repository-name {{.CHART_NAME}} --region {{.AWS_REGION}} 2>/dev/null || true
+        helm push {{.CHART_NAME}}-{{.SEMVER}}.tgz {{.AWS_REPO_URL}} || (echo "ERROR: helm chart could not be pushed. Did you provide AWS credentials?" && exit 99)
+
+  deploy:
+    desc: Deploy the Helm chart to the Grapple cluster
+    cmds:
+      - |
+        # patch the chart:
+        yq e -i '.version = "{{.CURRENT_VERSION}}"' {{.CHART_FOLDER}}/Chart.yaml
+        yq e -i '.appVersion = "{{.CURRENT_VERSION}}"' {{.CHART_FOLDER}}/Chart.yaml
+
+        # patch the image:
+        yq e -i '.image.repository = "{{.IMAGE_REGISTRY}}/{{.IMAGE_REPO}}"' {{.VALUES_YAML_PATH}}
+        yq e -i '.image.tag = "{{.TAG}}"' {{.VALUES_YAML_PATH}}
+
+        helm upgrade --install {{.CHART_NAME}} {{.AWS_REPO_URL}}/{{.CHART_NAME}} --version {{.SEMVER}} --namespace {{.NS}} --create-namespace
+
+  deploy-local:
+    desc: Deploy the Helm chart to the Grapple cluster
+    cmds:
+      - |
+        # patch the chart:
+        yq e -i '.version = "{{.CURRENT_VERSION}}"' {{.CHART_FOLDER}}/Chart.yaml
+        yq e -i '.appVersion = "{{.CURRENT_VERSION}}"' {{.CHART_FOLDER}}/Chart.yaml
+
+        # patch the image:
+        yq e -i '.image.repository = "{{.IMAGE_REGISTRY}}/{{.IMAGE_REPO}}"' {{.VALUES_YAML_PATH}}
+        yq e -i '.image.tag = "{{.TAG}}-dev.{{.GIT_HASH}}"' {{.VALUES_YAML_PATH}}
+
+        helm upgrade --install {{.CHART_NAME}} {{.CHART_FOLDER}} --namespace "{{.CHART_NAME_SHORT}}-{{.GIT_HASH}}" --create-namespace
+
+  build-and-deploy-local:
+    desc: Build, package, and push the Helm chart in one step
+    cmds:
+      - task: build-and-push-images-local
+      - task: deploy-local
+
+  build-package-push:
+    desc: Build, package, and push the Helm chart in one step
+    cmds:
+      - task: build-and-push-images
+      - task: patch-values-file
+      - task: package-chart
+      - task: push-chart-aws
+
+  build-package-push-deploy:
+    desc: Build, package, and push the Helm chart in one step
+    cmds:
+      - task: build-and-push-images
+      - task: patch-values-file
+      - task: package-chart
+      - task: push-chart-aws
+      - task: deploy
