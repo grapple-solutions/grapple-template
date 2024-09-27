@@ -119,20 +119,25 @@ tasks:
 
   build-images-local:
     desc: Build the images
+    vars:
+      STAGE: "dev"
+      TAG: "{{.CURRENT_VERSION}}.dev"
     cmds:
       - |
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
         yq e -i '.vars.IMAGE_REPO = "{{.IMAGE_REPO}}"' devspace.yaml
-        devspace build --skip-push --tag {{.TAG}}.dev-{{.GIT_HASH}} -n default --no-warn
+        devspace build --skip-push --tag {{.TAG}}-{{.GIT_HASH}} -n default --no-warn
 
   build-and-push-images-local:
     desc: Build the images
+    vars:
+      STAGE: "dev"
+      TAG: "{{.CURRENT_VERSION}}.dev"
     cmds:
       - |
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
         yq e -i '.vars.IMAGE_REPO = "{{.IMAGE_REPO}}"' devspace.yaml
-        echo "TAG: {{.TAG}}"
-        devspace build --tag "{{.TAG}}.dev-{{.GIT_HASH}}" -n default --no-warn
+        devspace build --tag "{{.TAG}}-{{.GIT_HASH}}" -n default --no-warn
 
   patch-values-file:
     desc: Gather and encode backend (grapi) and frontend (gruim) injections 
@@ -299,6 +304,9 @@ tasks:
 
   deploy-local:
     desc: Deploy the Helm chart to the Grapple cluster
+    vars:
+      STAGE: "dev"
+      TAG: "{{.CURRENT_VERSION}}.dev"
     cmds:
       - |
         # patch the chart:
@@ -307,7 +315,7 @@ tasks:
 
         # patch the image:
         yq e -i '.image.repository = "{{.IMAGE_REGISTRY}}/{{.IMAGE_REPO}}"' {{.VALUES_YAML_PATH}}
-        yq e -i '.image.tag = "{{.TAG}}.dev-{{.GIT_HASH}}"' {{.VALUES_YAML_PATH}}
+        yq e -i '.image.tag = "{{.TAG}}-{{.GIT_HASH}}"' {{.VALUES_YAML_PATH}}
 
         helm upgrade --install {{.CHART_NAME}} {{.CHART_FOLDER}} --namespace "{{.CHART_NAME_SHORT}}-{{.STAGE}}-{{.GIT_HASH}}" --create-namespace
 
