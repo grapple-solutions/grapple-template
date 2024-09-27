@@ -18,3 +18,4 @@ target
 skaffold.yaml
 docker-compose.yaml
 devspace.yaml
+*.tgz

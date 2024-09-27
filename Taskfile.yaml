@@ -54,9 +54,9 @@ vars:
   NS:
     sh: |
         if [ "{{.STAGE}}" = "prd" ]; then
-          echo "{{.CHART_NAME}}"
+          echo "{{.CHART_NAME}}" | head -c 10
         else
-          echo "{{.CHART_NAME_SHORT}}{{.NS_EXT}}"
+          echo -n "{{.CHART_NAME_SHORT}}" | head -c 10 | cat - <(echo "{{.NS_EXT}}")
         fi
   TAG_EXT:
     sh: |
@@ -119,20 +119,29 @@ tasks:
 
   build-images-local:
     desc: Build the images
+    vars:
+      STAGE:
+        sh: if [ "{{.STAGE}}" = "prd" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
+      TAG:
+        sh: if [ "{{.STAGE}}" = "dev" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}"; fi
     cmds:
       - |
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
         yq e -i '.vars.IMAGE_REPO = "{{.IMAGE_REPO}}"' devspace.yaml
-        devspace build --skip-push --tag {{.TAG}}-dev.{{.GIT_HASH}} -n default --no-warn
+        devspace build --skip-push --tag {{.TAG}}-{{.GIT_HASH}} -n default --no-warn
 
   build-and-push-images-local:
     desc: Build the images
+    vars:
+      STAGE:
+        sh: if [ "{{.STAGE}}" = "prd" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
+      TAG:
+        sh: if [ "{{.STAGE}}" = "dev" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}"; fi
     cmds:
       - |
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
         yq e -i '.vars.IMAGE_REPO = "{{.IMAGE_REPO}}"' devspace.yaml
-        echo "TAG: {{.TAG}}"
-        devspace build --tag "{{.TAG}}-dev.{{.GIT_HASH}}" -n default --no-warn
+        devspace build --tag "{{.TAG}}-{{.GIT_HASH}}" -n default --no-warn
 
   patch-values-file:
     desc: Gather and encode backend (grapi) and frontend (gruim) injections 
@@ -186,7 +195,7 @@ tasks:
         cm="custommodules"
         if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
           yq -i "del(.${BASE}.${FOLDER}.${cm}[])" {{.VALUES_YAML_PATH}}
-          for file_path in $(find ${FOLDER}/shared -name "*.svelte"); do 
+          for file_path in $(find ${FOLDER}/${cm} -name "*.svelte"); do 
             group_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
               cut -d/ -f1)
             file_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
@@ -299,6 +308,11 @@ tasks:
 
   deploy-local:
     desc: Deploy the Helm chart to the Grapple cluster
+    vars:
+      STAGE:
+        sh: if [ "{{.STAGE}}" = "prd" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
+      TAG:
+        sh: if [ "{{.STAGE}}" = "dev" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}"; fi
     cmds:
       - |
         # patch the chart:
@@ -307,9 +321,12 @@ tasks:
 
         # patch the image:
         yq e -i '.image.repository = "{{.IMAGE_REGISTRY}}/{{.IMAGE_REPO}}"' {{.VALUES_YAML_PATH}}
-        yq e -i '.image.tag = "{{.TAG}}-dev.{{.GIT_HASH}}"' {{.VALUES_YAML_PATH}}
+        yq e -i '.image.tag = "{{.TAG}}-{{.GIT_HASH}}"' {{.VALUES_YAML_PATH}}
 
-        helm upgrade --install {{.CHART_NAME}} {{.CHART_FOLDER}} --namespace "{{.CHART_NAME_SHORT}}-{{.GIT_HASH}}" --create-namespace
+        # run dependency update in order to prevent issue on the first build
+        helm dep up chart
+
+        helm upgrade --install {{.CHART_NAME}} {{.CHART_FOLDER}} --namespace "{{.CHART_NAME_SHORT}}-{{.STAGE}}-{{.GIT_HASH}}" --create-namespace
 
   build-and-deploy-local:
     desc: Build, package, and push the Helm chart in one step
