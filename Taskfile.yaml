@@ -121,9 +121,9 @@ tasks:
     desc: Build the images
     vars:
       STAGE:
-        sh: if [ "{{.STAGE}}" = "" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
+        sh: if [ "{{.STAGE}}" = "prd" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
       TAG:
-        sh: if [ "{{.STAGE}}" = "" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}"; fi
+        sh: if [ "{{.STAGE}}" = "prd" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}"; fi
     cmds:
       - |
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
@@ -134,9 +134,9 @@ tasks:
     desc: Build the images
     vars:
       STAGE:
-        sh: if [ "{{.STAGE}}" = "" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
+        sh: if [ "{{.STAGE}}" = "prd" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
       TAG:
-        sh: if [ "{{.STAGE}}" = "" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}"; fi
+        sh: if [ "{{.STAGE}}" = "prd" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}"; fi
     cmds:
       - |
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
@@ -310,9 +310,9 @@ tasks:
     desc: Deploy the Helm chart to the Grapple cluster
     vars:
       STAGE:
-        sh: if [ "{{.STAGE}}" = "" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
+        sh: if [ "{{.STAGE}}" = "prd" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
       TAG:
-        sh: if [ "{{.STAGE}}" = "" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}"; fi
+        sh: if [ "{{.STAGE}}" = "prd" ]; then echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; else echo "{{.TAG}}"; fi
     cmds:
       - |
         # patch the chart:
