@@ -186,7 +186,7 @@ tasks:
         cm="custommodules"
         if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
           yq -i "del(.${BASE}.${FOLDER}.${cm}[])" {{.VALUES_YAML_PATH}}
-          for file_path in $(find ${FOLDER}/shared -name "*.svelte"); do 
+          for file_path in $(find ${FOLDER}/${cm} -name "*.svelte"); do 
             group_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
               cut -d/ -f1)
             file_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
