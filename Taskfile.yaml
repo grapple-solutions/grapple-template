@@ -120,8 +120,10 @@ tasks:
   build-images-local:
     desc: Build the images
     vars:
-      STAGE: "dev"
-      TAG: "{{.CURRENT_VERSION}}.dev"
+      STAGE:
+        sh: if [ "{{.STAGE}}" = "" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
+      TAG:
+        sh: if [ "{{.STAGE}}" = "prd" ]; then echo "{{.CURRENT_VERSION}}"; else echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; fi
     cmds:
       - |
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
@@ -131,8 +133,10 @@ tasks:
   build-and-push-images-local:
     desc: Build the images
     vars:
-      STAGE: "dev"
-      TAG: "{{.CURRENT_VERSION}}.dev"
+      STAGE:
+        sh: if [ "{{.STAGE}}" = "" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
+      TAG:
+        sh: if [ "{{.STAGE}}" = "prd" ]; then echo "{{.CURRENT_VERSION}}"; else echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; fi
     cmds:
       - |
         yq e -i '.vars.IMAGE_REGISTRY = "{{.IMAGE_REGISTRY}}"' devspace.yaml
@@ -305,8 +309,10 @@ tasks:
   deploy-local:
     desc: Deploy the Helm chart to the Grapple cluster
     vars:
-      STAGE: "dev"
-      TAG: "{{.CURRENT_VERSION}}.dev"
+      STAGE:
+        sh: if [ "{{.STAGE}}" = "" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
+      TAG:
+        sh: if [ "{{.STAGE}}" = "prd" ]; then echo "{{.CURRENT_VERSION}}"; else echo "{{.CURRENT_VERSION}}.{{.STAGE}}"; fi
     cmds:
       - |
         # patch the chart:
