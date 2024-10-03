@@ -34,12 +34,14 @@ vars:
   STAGE: '{{.STAGE | default "prd"}}'
   GIT_HASH:
     sh: git log -n 1 --format=%h
+  RANDOM: "9999"
+    # sh: echo {{randInt 10000 100000}} # doesn't work - different on every occurrence
   PR_NR:
     sh: |
       if [ "${BITBUCKET_PR_ID}" != "" ]; then
         echo ${BITBUCKET_PR_ID}
       else
-        echo {{randInt 10000 100000}}
+        echo {{.RANDOM}}
       fi
   IMAGE_REGISTRY: '{{.IMAGE_REGISTRY | default "grpl"}}'
   IMAGE_REPO:
