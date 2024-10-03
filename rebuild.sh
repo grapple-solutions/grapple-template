@@ -16,6 +16,13 @@ if [[ -z "${DEV}" ]]; then
         echo -n '.'
     done || echo "\n\nERROR: could not reach: ${SVELTE_APP_REMOTE_URL}/dashboard.json after 10 minutes"
 
+    echo "testing: curl -k ${SVELTE_APP_REMOTE_URL}/dashboard.json | jq ."
+    echo "wait until it is returning a json object..."
+    while ! curl -k ${SVELTE_APP_REMOTE_URL}/dashboard.json 2>/dev/null | jq . >/dev/null; do
+        sleep 1
+        echo -n '.'
+    done || echo "\n\nERROR: ${SVELTE_APP_REMOTE_URL} did not return a json object..."
+    
     pnpm build
     cp /app/dist/* /usr/share/nginx/html/.
     nginx -g 'daemon off;'
