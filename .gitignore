@@ -136,3 +136,8 @@ target/
 
 # Ignore DevSpace cache and log folder
 .devspace/
+
+
+# Ignore grapple specific stuff
+gruim/custommodules/list.json
+grapi/controllers/index.ts

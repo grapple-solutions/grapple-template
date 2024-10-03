@@ -45,7 +45,7 @@ dev:
     labelSelector:
       app.kubernetes.io/instance: app
     # Replace the container image with this dev-optimized image (allows to skip image building during development)
-    devImage: docker.io/library/grpl/grapp:devspace
+    devImage: "${IMAGE_REGISTRY}/${IMAGE_REPO}:devspace"
     # Sync files between the local filesystem and the development container
     env:
       - name: DEV
@@ -85,7 +85,7 @@ dev:
       - name: DEV
         value: "true"
     sync:
-      - path: ./gruim/shared/.:/usr/src/app/src/lib/custom-components/.
+      - path: ./gruim/custommodules/.:/usr/src/app/src/lib/custom-components/.
         # - name: OPENAPI_URL
         #   value: "http://dev-app-grapi.grpl-cli.grapple-demo.com/openapi.json"
     # restartHelper:
