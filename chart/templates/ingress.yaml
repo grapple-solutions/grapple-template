@@ -40,7 +40,7 @@ spec:
     {{- end }}
     {{ $secret := (lookup "v1" "Secret" "grpl-system" "grsf-config" ) }}
     - hosts:
-        - {{ $fullName }}.{{ index $secret.data "GRAPPLE_DNS" | b64dec }}
+        - {{ .Release.Namespace }}-{{ $fullName }}.{{ index $secret.data "GRAPPLE_DNS" | b64dec }}
       secretName: {{ $fullName }}-tls
   rules:
     {{- if .Values.ingress.tls }}
@@ -67,7 +67,7 @@ spec:
       {{- end }}
     {{- end }}
     {{- $secret := (lookup "v1" "Secret" "grpl-system" "grsf-config" ) }}
-    - host: {{ $fullName }}.{{ index $secret.data "GRAPPLE_DNS" | b64dec }}
+    - host: {{ .Release.Namespace }}-{{ $fullName }}.{{ index $secret.data "GRAPPLE_DNS" | b64dec }}
       http:
         paths:
           - path: /
