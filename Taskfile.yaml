@@ -35,7 +35,12 @@ vars:
   GIT_HASH:
     sh: git log -n 1 --format=%h
   PR_NR:
-    sh: echo ${BITBUCKET_PR_ID}
+    sh: |
+      if [ "${BITBUCKET_PR_ID}" != "" ]; then
+        echo ${BITBUCKET_PR_ID}
+      else
+        echo {{randInt 10000 100000}}
+      fi
   IMAGE_REGISTRY: '{{.IMAGE_REGISTRY | default "grpl"}}'
   IMAGE_REPO:
     sh: |
