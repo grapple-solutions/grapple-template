@@ -34,13 +34,18 @@ vars:
   STAGE: '{{.STAGE | default "prd"}}'
   GIT_HASH:
     sh: git log -n 1 --format=%h
+  PR_NR:
+    sh: echo ${BITBUCKET_PR_ID}
   IMAGE_REGISTRY: '{{.IMAGE_REGISTRY | default "grpl"}}'
   IMAGE_REPO:
     sh: |
+        if [ "{{.STAGE}}" != "prd" ]; then
+          IMAGE_REPO_EXT="-{{.STAGE}}"
+        fi
         if [ "{{.IMAGE_REPO}}" = "" ]; then
-          echo "{{.CHART_NAME}}"
+          echo "{{.CHART_NAME}}${IMAGE_REPO_EXT}"
         else
-          echo "{{.IMAGE_REPO}}"
+          echo "{{.IMAGE_REPO}}${IMAGE_REPO_EXT}"
         fi
   NS_EXT:
     sh: |
@@ -48,6 +53,8 @@ vars:
           echo ""
         elif [ "{{.STAGE}}" = "nop" ]; then
           echo "-{{.STAGE}}-{{.GIT_HASH}}"
+        elif [ "{{.STAGE}}" = "pr" ]; then
+          echo "-{{.STAGE}}-{{.PR_NR}}"
         else
           echo "-{{.STAGE}}"
         fi
@@ -64,6 +71,8 @@ vars:
           echo ""
         elif [ "{{.STAGE}}" = "nop" ]; then
           echo ".{{.STAGE}}-{{.GIT_HASH}}"
+        elif [ "{{.STAGE}}" = "pr" ]; then
+          echo ".{{.STAGE}}-{{.PR_NR}}"
         else
           echo ".{{.STAGE}}"
         fi
@@ -80,6 +89,8 @@ vars:
           echo ""
         elif [ "{{.STAGE}}" = "nop" ]; then
           echo "-{{.STAGE}}{{.GIT_HASH}}"
+        elif [ "{{.STAGE}}" = "pr" ]; then
+          echo "-{{.STAGE}}{{.PR_NR}}"
         else
           echo "-{{.STAGE}}"
         fi
@@ -347,6 +358,13 @@ tasks:
     cmds:
       - task: build-and-push-images
       - task: patch-values-file
+      - task: package-chart
+      - task: push-chart-aws
+      - task: deploy
+
+  package-push-deploy:
+    desc: update Helm chart in one step
+    cmds:
       - task: package-chart
       - task: push-chart-aws
       - task: deploy

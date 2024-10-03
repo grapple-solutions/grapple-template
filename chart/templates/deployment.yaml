@@ -49,14 +49,14 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /admin
+              path: /
               port: 80
             initialDelaySeconds: 500
             periodSeconds: 10
             failureThreshold: 3
           startupProbe:
             httpGet:
-              path: /admin
+              path: /
               port: 80
             failureThreshold: 200
             periodSeconds: 5
