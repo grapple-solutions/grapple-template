@@ -16,7 +16,10 @@ definitions:
           - if ! civo k8s show ${name}-${stage} >/dev/null 2>&1; then civo k8s create ${name}-${stage} --size=${civosize} --nodes=${civonodes} ${civoapps} || true; fi
           - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
           - civo k8s config ${name}-${stage} --save --switch
-          - if [ "$(kubectl get configuration grpl | grep grpl | awk '{print $2}')" != "True" ] || [ "$(kubectl get configuration grpl | grep grpl | awk '{print $2}')" != "True" ]; then grpl cluster install --TARGET_PLATFORM=CIVO --CIVO_REGION=${civoregion} --CIVO_CLUSTER=${name}-${stage} --CIVO_EMAIL_ADDRESS=info@grapple-solutions.com --AUTO_CONFIRM=true; else echo "grpl is already running"; fi
+          - if [ "$(kubectl get configuration grpl | grep grpl | awk '{print $2}')" != "True" ] || [ "$(kubectl get configuration grpl | grep grpl | awk '{print $2}')" != "True" ]; then grpl cluster install --TARGET_PLATFORM=CIVO --CIVO_REGION=${civoregion} --CIVO_CLUSTER=${name}-${stage} --CIVO_EMAIL_ADDRESS=info@grapple-solutions.com --GRAPPLE_DNS=${stage}.${domain} --AUTO_CONFIRM=true; else echo "grpl is already running"; fi
+          - docker run -i --env GRAPPLE_DNS=${stage}.${domain} --env CIVO_MASTER_IP=$(civo k8s show ${name}-${stage} -o custom -f "MasterIP") --env HOSTED_ZONE_ID=${HOSTED_ZONE_ID} grpl/dns-aws-route53-upsert:latest
+        services:
+          - docker
 
 pipelines:
   
@@ -49,7 +52,6 @@ pipelines:
               - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
               - civo k8s config ${name}-${stage} --save --switch
               - docker login -u $dockeruser -p $dockerpw 
-              - devspace use profile bitbucket
               - task build-package-push-deploy STAGE=pr
               - echo $BITBUCKET_PR_ID > pr_id.txt
               - git add --force pr_id.txt && git commit -m "[skip ci] updated PR ID" && git push
@@ -77,7 +79,6 @@ pipelines:
               - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
               - civo k8s config ${name}-${stage} --save --switch
               - docker login -u $dockeruser -p $dockerpw 
-              - devspace use profile bitbucket
               - task build-package-push-deploy STAGE=uat
             services:
               - docker
