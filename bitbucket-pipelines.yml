@@ -1,0 +1,81 @@
+# This is an example Starter pipeline configuration
+# Use a skeleton to build, test and deploy using manual and parallel steps
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+
+image: grpl/civo-build-container:v0.14
+
+definitions: 
+  steps:
+    - step: &cluster 
+        name: 'Prep Cluster'
+        script:
+          - kubectl version --client=true && helm version && civo version || true
+          - civo apikey save grapple ${civokey} && civo region current ${civoregion} 
+          - civo apikey ls
+          - if ! civo k8s show ${name}-${stage} >/dev/null 2>&1; then civo k8s create ${name}-${stage} --size=${civosize} --nodes=${civonodes} ${civoapps} || true; fi
+          - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
+          - civo k8s config ${name}-${stage} --save --switch
+          - if [ "$(kubectl get configuration grpl | grep grpl | awk '{print $2}')" != "True" ] || [ "$(kubectl get configuration grpl | grep grpl | awk '{print $2}')" != "True" ]; then grpl cluster install --TARGET_PLATFORM=CIVO --CIVO_REGION=${civoregion} --CIVO_CLUSTER=${name}-${stage} --CIVO_EMAIL_ADDRESS=info@grapple-solutions.com --AUTO_CONFIRM=true; else echo "grpl is already running"; fi
+
+pipelines:
+  
+#  default:
+#    - parallel:
+#      - step: *build
+#      # - step: *lint
+#      # - step: *scan
+
+  custom:
+    demo:
+      - variables:
+        - name: stage
+          default: demo
+      - step:
+          name: 'Deployment to demo'
+          script:
+            - echo "demo"
+
+  pull-requests:
+    '**': #this runs as default for any branch not elsewhere defined
+      - parallel:
+        - step: *cluster
+        - step:
+            name: 'Deployment of PR to nop'
+            caches:
+              - docker
+            script:
+              - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
+              - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
+              - civo k8s config ${name}-${stage} --save --switch
+              - docker login -u $dockeruser -p $dockerpw 
+              - task build-package-push-deploy STAGE=pr
+            services:
+              - docker
+
+  branches:
+    develop:
+      - variables:
+        - name: STAGE # stage=nop but STAGE=uat
+          default: uat
+      - parallel:
+        - step: *cluster
+        - step:
+            name: 'Deployment to UAT'
+            caches:
+              - docker
+            script:
+              - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
+              - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
+              - civo k8s config ${name}-${stage} --save --switch
+              - docker login -u $dockeruser -p $dockerpw 
+              - task build-package-push-deploy
+            services:
+              - docker
+
+    main:
+      - step:
+          name: 'Deployment to prd'
+          script:
+            - echo "PROD"
+ 
