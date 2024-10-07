@@ -50,6 +50,8 @@ pipelines:
               - civo k8s config ${name}-${stage} --save --switch
               - docker login -u $dockeruser -p $dockerpw 
               - task build-package-push-deploy STAGE=pr
+              - echo $BITBUCKET_PR_ID > pr_id.txt
+              - git add pr_id.txt && git commit -m "[skip ci] updated PR ID" && git push
             services:
               - docker
 
@@ -60,6 +62,14 @@ pipelines:
           default: uat
       - parallel:
         - step: *cluster
+        - step:
+            name: 'Cleanup PR deployments'
+            script:
+              - civo apikey save cloud20x ${civokey} && civo region current ${civoregion} 
+              - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
+              - civo k8s config ${name}-${stage} --save --switch
+              - export re='^[0-9]+$'
+              - if [ -f "pr_id.txt" ] && [[ $(cat pr_id.txt) =~ $re ]] && [ "${PROJECT_NAME_SHORT}" != "" ]; then kubectl delete ns ${PROJECT_NAME_SHORT}-pr-$(cat pr_id.txt); fi
         - step:
             name: 'Deployment to UAT'
             caches:

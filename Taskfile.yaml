@@ -320,7 +320,7 @@ tasks:
         helm push {{.PROJECT_NAME}}-{{.SEMVER}}.tgz {{.AWS_REPO_URL}} || (echo "ERROR: helm chart could not be pushed. Did you provide AWS credentials?" && exit 99)
 
   deploy:
-    desc: Deploy the Helm chart to the Grapple cluster
+    desc: Deploy the Helm chart to the grapple cluster
     cmds:
       - |
         # patch the chart:
@@ -334,7 +334,7 @@ tasks:
         helm upgrade --install {{.PROJECT_NAME}} {{.AWS_REPO_URL}}/{{.PROJECT_NAME}} --version {{.SEMVER}} --namespace {{.NS}} --create-namespace
 
   deploy-local:
-    desc: Deploy the Helm chart to the Grapple cluster
+    desc: Deploy the Helm chart to the grapple cluster
     vars:
       STAGE:
         sh: if [ "{{.STAGE}}" = "prd" ]; then echo "dev"; else echo "{{.STAGE}}"; fi
