@@ -137,6 +137,8 @@ target/
 # Ignore DevSpace cache and log folder
 .devspace/
 
+# Ignore pr_id.txt file that shall only ever be changed in pull requests...
+pr_id.txt
 
 # Ignore grapple specific stuff
 gruim/custommodules/list.json

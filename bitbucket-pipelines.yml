@@ -49,6 +49,7 @@ pipelines:
               - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
               - civo k8s config ${name}-${stage} --save --switch
               - docker login -u $dockeruser -p $dockerpw 
+              - devspace use profile bitbucket
               - task build-package-push-deploy STAGE=pr
               - echo $BITBUCKET_PR_ID > pr_id.txt
               - git add --force pr_id.txt && git commit -m "[skip ci] updated PR ID" && git push
@@ -76,6 +77,7 @@ pipelines:
               - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
               - civo k8s config ${name}-${stage} --save --switch
               - docker login -u $dockeruser -p $dockerpw 
+              - devspace use profile bitbucket
               - task build-package-push-deploy STAGE=uat
             services:
               - docker
