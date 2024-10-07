@@ -51,15 +51,12 @@ pipelines:
               - docker login -u $dockeruser -p $dockerpw 
               - task build-package-push-deploy STAGE=pr
               - echo $BITBUCKET_PR_ID > pr_id.txt
-              - git add pr_id.txt && git commit -m "[skip ci] updated PR ID" && git push
+              - git add --force pr_id.txt && git commit -m "[skip ci] updated PR ID" && git push
             services:
               - docker
 
   branches:
     develop:
-      - variables:
-        - name: STAGE # stage=nop but STAGE=uat
-          default: uat
       - parallel:
         - step: *cluster
         - step:
@@ -69,7 +66,7 @@ pipelines:
               - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
               - civo k8s config ${name}-${stage} --save --switch
               - export re='^[0-9]+$'
-              - if [ -f "pr_id.txt" ] && [[ $(cat pr_id.txt) =~ $re ]] && [ "${PROJECT_NAME_SHORT}" != "" ]; then kubectl delete ns ${PROJECT_NAME_SHORT}-pr-$(cat pr_id.txt); fi
+              - if [ -f "pr_id.txt" ] && [[ $(cat pr_id.txt) =~ $re ]] && [ "${PROJECT_NAME_SHORT}" != "" ]; then kubectl delete ns ${PROJECT_NAME_SHORT}-pr-$(cat pr_id.txt) || true; fi
         - step:
             name: 'Deployment to UAT'
             caches:
@@ -79,7 +76,7 @@ pipelines:
               - until [ $(civo k8s show -o custom -f Status ${name}-${stage}) = "ACTIVE" ]; do echo -n "."; sleep 3; done
               - civo k8s config ${name}-${stage} --save --switch
               - docker login -u $dockeruser -p $dockerpw 
-              - task build-package-push-deploy
+              - task build-package-push-deploy STAGE=uat
             services:
               - docker
 
@@ -88,4 +85,3 @@ pipelines:
           name: 'Deployment to prd'
           script:
             - echo "PROD"
- 
