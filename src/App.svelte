@@ -102,7 +102,7 @@
   <div class="p-8 grid gap-3">
     <div>
       <!-- <h2 class="text-xl">Count</h2> -->
-      <div class="uimodule" bind:this={el1} style="width:350px;" />
+      <div class="uimodule" bind:this={el1} style="width:360px;" />
       <div class="uimodule" bind:this={el2} />
       <div class="uimodule" bind:this={el3} />
     </div>

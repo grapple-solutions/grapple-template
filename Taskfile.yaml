@@ -8,19 +8,28 @@ vars:
   GRUIM_INJECTION_FOLDER: "gruim"
   BASE: "gras-deploy"
   CHART_FOLDER: "./chart"
-  CHART_NAME: # use the current folder as the chart name
-    sh: echo ${PWD##*/}
-  CHART_NAME_SHORT: # use the current folder as the chart name
+  PROJECT_NAME: # use the current folder as the chart name
     sh: |
-        string="${PWD##*/}"
-        string="${string//[.\']/}"
-        string="${string//[!a-zA-Z ]/ }"
-        acronym=''
-        for word in ${string}
-        do
-          acronym+="${word:0:4}"
-        done
-        echo "$acronym"
+        if [ "{{.PROJECT_NAME}}" = "" ]; then
+          echo ${PWD##*/}
+        else
+          echo "{{.PROJECT_NAME}}"
+        fi
+  PROJECT_NAME_SHORT: # use the current folder as the chart name
+    sh: |
+        if [ "{{.PROJECT_NAME_SHORT}}" = "" ]; then
+          string="${PWD##*/}"
+          string="${string//[.\']/}"
+          string="${string//[!a-zA-Z ]/ }"
+          acronym=''
+          for word in ${string}
+          do
+            acronym+="${word:0:4}"
+          done
+          echo "$acronym"
+        else
+          echo "{{.PROJECT_NAME_SHORT}}"
+        fi
   VERSION_FILE: "version.txt" 
   CURRENT_VERSION:
     sh: |
@@ -50,7 +59,7 @@ vars:
           IMAGE_REPO_EXT="-{{.STAGE}}"
         fi
         if [ "{{.IMAGE_REPO}}" = "" ]; then
-          echo "{{.CHART_NAME}}${IMAGE_REPO_EXT}"
+          echo "{{.PROJECT_NAME}}${IMAGE_REPO_EXT}"
         else
           echo "{{.IMAGE_REPO}}${IMAGE_REPO_EXT}"
         fi
@@ -68,9 +77,9 @@ vars:
   NS:
     sh: |
         if [ "{{.STAGE}}" = "prd" ]; then
-          echo "{{.CHART_NAME}}" | head -c 10
+          echo "{{.PROJECT_NAME}}" | head -c 10
         else
-          echo -n "{{.CHART_NAME_SHORT}}" | head -c 10 | cat - <(echo "{{.NS_EXT}}")
+          echo -n "{{.PROJECT_NAME_SHORT}}" | head -c 10 | cat - <(echo "{{.NS_EXT}}")
         fi
   TAG_EXT:
     sh: |
@@ -268,7 +277,7 @@ tasks:
     cmds:
       - |
         # rename the chart properly
-        yq e -i '.name = "{{.CHART_NAME}}"' {{.CHART_FOLDER}}/Chart.yaml
+        yq e -i '.name = "{{.PROJECT_NAME}}"' {{.CHART_FOLDER}}/Chart.yaml
 
         # patch the image:
         yq e -i '.image.repository = "{{.IMAGE_REGISTRY}}/{{.IMAGE_REPO}}"' {{.VALUES_YAML_PATH}}
@@ -281,7 +290,7 @@ tasks:
         echo {{.SEMVER}}
         helm package chart --version {{.SEMVER}}
 
-        echo "helm package created in: ./{{.CHART_NAME}}-{{.SEMVER}}.tgz"
+        echo "helm package created in: ./{{.PROJECT_NAME}}-{{.SEMVER}}.tgz"
 
   push-chart-aws:
     desc: Push the packaged Helm chart to the repository
@@ -307,8 +316,8 @@ tasks:
           --region {{.AWS_REGION}} | helm registry login \
           --username {{.AWS_USERNAME}} \
           --password-stdin {{.REGISTRY}}
-        aws ecr-public create-repository --repository-name {{.CHART_NAME}} --region {{.AWS_REGION}} 2>/dev/null || true
-        helm push {{.CHART_NAME}}-{{.SEMVER}}.tgz {{.AWS_REPO_URL}} || (echo "ERROR: helm chart could not be pushed. Did you provide AWS credentials?" && exit 99)
+        aws ecr-public create-repository --repository-name {{.PROJECT_NAME}} --region {{.AWS_REGION}} 2>/dev/null || true
+        helm push {{.PROJECT_NAME}}-{{.SEMVER}}.tgz {{.AWS_REPO_URL}} || (echo "ERROR: helm chart could not be pushed. Did you provide AWS credentials?" && exit 99)
 
   deploy:
     desc: Deploy the Helm chart to the Grapple cluster
@@ -322,7 +331,7 @@ tasks:
         yq e -i '.image.repository = "{{.IMAGE_REGISTRY}}/{{.IMAGE_REPO}}"' {{.VALUES_YAML_PATH}}
         yq e -i '.image.tag = "{{.TAG}}"' {{.VALUES_YAML_PATH}}
 
-        helm upgrade --install {{.CHART_NAME}} {{.AWS_REPO_URL}}/{{.CHART_NAME}} --version {{.SEMVER}} --namespace {{.NS}} --create-namespace
+        helm upgrade --install {{.PROJECT_NAME}} {{.AWS_REPO_URL}}/{{.PROJECT_NAME}} --version {{.SEMVER}} --namespace {{.NS}} --create-namespace
 
   deploy-local:
     desc: Deploy the Helm chart to the Grapple cluster
@@ -344,7 +353,7 @@ tasks:
         # run dependency update in order to prevent issue on the first build
         helm dep up chart
 
-        helm upgrade --install {{.CHART_NAME}} {{.CHART_FOLDER}} --namespace "{{.CHART_NAME_SHORT}}-{{.STAGE}}-{{.GIT_HASH}}" --create-namespace
+        helm upgrade --install {{.PROJECT_NAME}} {{.CHART_FOLDER}} --namespace "{{.PROJECT_NAME_SHORT}}-{{.STAGE}}-{{.GIT_HASH}}" --create-namespace
 
   build-and-deploy-local:
     desc: Build, package, and push the Helm chart in one step
