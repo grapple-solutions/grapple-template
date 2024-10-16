@@ -80,7 +80,7 @@ dev:
     # Search for the container that runs this image
     labelSelector:
       app.kubernetes.io/name: gruim
-    devImage: docker.io/grpl/gruim:0.2.4
+    devImage: docker.io/grpl/gruim:0.2.8
     env:
       - name: DEV
         value: "true"
@@ -99,7 +99,7 @@ dev:
     # Search for the container that runs this image
     labelSelector:
       app.kubernetes.io/name: grapi
-    devImage: docker.io/grpl/grapi:0.2.4
+    devImage: docker.io/grpl/grapi:0.2.8
     env:
       - name: DEV
         value: "true"
