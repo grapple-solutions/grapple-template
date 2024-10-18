@@ -22,7 +22,7 @@ images:
     image: "${IMAGE_REGISTRY}/${IMAGE_REPO}:devspace"
     dockerfile: ./Dockerfile
     buildKit: # {}
-      args: [--platform, 'linux/amd64,linux/arm64']
+      args: [--platform, "linux/amd64,linux/arm64"]
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
   app:
@@ -84,6 +84,8 @@ dev:
     env:
       - name: DEV
         value: "true"
+      - name: NODE_OPTIONS
+        value: "--dns-result-order=ipv4first"
     sync:
       - path: ./gruim/custommodules/.:/usr/src/app/src/lib/custom-components/.
         # - name: OPENAPI_URL
@@ -113,7 +115,7 @@ dev:
       - port: "3000:3000"
     open:
       - url: http://localhost:3000
-# Use the `commands` section to define repeatable dev workflows for this project 
+# Use the `commands` section to define repeatable dev workflows for this project
 commands:
   gruim:
     command: |-
@@ -125,6 +127,7 @@ commands:
     command: |-
       devspace enter --label-selector app.kubernetes.io/name=grapi npm run build && \
       devspace enter --label-selector app.kubernetes.io/name=grapi npm run migrate
+
 # Define dependencies to other projects with a devspace.yaml
 # dependencies:
 #   api:
