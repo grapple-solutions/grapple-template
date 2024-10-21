@@ -84,6 +84,9 @@ dev:
     env:
       - name: DEV
         value: "true"
+      # NODE_OPTIONS ipv4first need to be defined for fixing the ipv4 resolution in webpack http-proxy-middleware:
+      # https://github.com/chimurai/http-proxy-middleware/issues/705
+      # important for k3d deployments
       - name: NODE_OPTIONS
         value: "--dns-result-order=ipv4first"
     sync:
