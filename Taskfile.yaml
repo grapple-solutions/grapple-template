@@ -161,6 +161,49 @@ tasks:
         yq e -i '.vars.IMAGE_REPO = "{{.IMAGE_REPO}}"' devspace.yaml
         devspace build --tag "{{.TAG}}-{{.GIT_HASH}}" -n default --no-warn
 
+  patch-values-file-patches-only:
+    desc: Gather and encode backend (grapi) injections (patches only)
+          and update values.yaml
+    cmds:
+      - echo "1) Checking if values.yaml exists..."
+      - |
+        if [ -f "{{.VALUES_YAML_PATH}}" ]; then
+          echo "values.yaml found at {{.VALUES_YAML_PATH}}"
+        else
+          echo "ERROR: values.yaml not found at {{.VALUES_YAML_PATH}}"
+          exit 1
+        fi
+      - echo "2) Processing grapi injections..."
+      - |
+        FOLDER={{.GRAPI_INJECTION_FOLDER}}
+        BASE64=$(if [[ "$OSTYPE" == "darwin"* ]]; then echo "base64"; else echo "base64 -w 0"; fi)
+        BASE="{{.BASE}}"  # Ensuring BASE is enclosed in quotes for full path reference
+        if yq -e ".${BASE}.${FOLDER}" {{.VALUES_YAML_PATH}} >/dev/null; then
+          for file_path in $(find ${FOLDER} -name "*.sh" -or -name "*.bash"); do  
+            group_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
+              cut -d/ -f1)
+            file_name=$(echo ${file_path} | sed "s,${FOLDER}/,,g" | \
+              cut -d/ -f2)
+            file_extension=$(echo ${file_name##*.})
+            injection_name=$(echo ${file_name} | sed \
+              "s,.${group_name}.${file_extension},,g" | sed \
+              "s,.${group_name::${#group_name}-1}.${file_extension},,g" | \
+              sed "s,.${file_extension},,g")
+            base64_content=$(cat ${file_path} | ${BASE64})  # Base64 on single line
+            if [ "${file_name}" = "index.ts" ]; then continue; fi
+            echo "patching: ${FOLDER} - ${group_name} - ${injection_name} - \
+              ${file_name}"
+            yq -i "del(.${BASE}.${FOLDER}.${group_name}[] | \
+              select(.name == \"${injection_name}\"))" {{.VALUES_YAML_PATH}}
+            yq -i ".${BASE}.${FOLDER}.${group_name} += [{\"name\": \
+              \"${injection_name}\", \"content\": \"${base64_content}\"}]" \
+              {{.VALUES_YAML_PATH}}
+          done
+        else
+          echo "failed to add ${FOLDER} values..."
+          exit 99
+        fi
+
   patch-values-file:
     desc: Gather and encode backend (grapi) and frontend (gruim) injections 
           and update values.yaml
