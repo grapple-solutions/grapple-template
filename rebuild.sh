@@ -8,26 +8,26 @@ if [[ -z "${CONTAINER_NAME}" ]]; then
 fi
 
 echo "SVELTE_APP_REMOTE_URL = ${SVELTE_APP_REMOTE_URL}"
-if [[ -z "${DEV}" ]]; then
-    echo "testing: curl -k -Is ${SVELTE_APP_REMOTE_URL}/dashboard.json | head -1"
-    # timeout 600 sh -c "while ! curl -k -Is ${SVELTE_APP_REMOTE_URL}/dashboard.json 2>/dev/null | head -1 | grep 200; do sleep 1; echo -n '.'; done" || echo "\n\nERROR: could not reach: ${SVELTE_APP_REMOTE_URL}/dashboard.json after 10 minutes"
-    while ! curl -k -Is ${SVELTE_APP_REMOTE_URL}/dashboard.json 2>/dev/null | head -1 | grep 200; do
-        sleep 1
-        echo -n '.'
-    done || echo "\n\nERROR: could not reach: ${SVELTE_APP_REMOTE_URL}/dashboard.json after 10 minutes"
 
-    echo "testing: curl -k ${SVELTE_APP_REMOTE_URL}/dashboard.json | jq ."
-    echo "wait until it is returning a json object..."
-    while ! curl -k ${SVELTE_APP_REMOTE_URL}/dashboard.json 2>/dev/null | jq . >/dev/null; do
-        sleep 1
-        echo -n '.'
-    done || echo "\n\nERROR: ${SVELTE_APP_REMOTE_URL} did not return a json object..."
+echo "testing: curl -k -Is ${SVELTE_APP_REMOTE_URL}/dashboard.json | head -1"
+# timeout 600 sh -c "while ! curl -k -Is ${SVELTE_APP_REMOTE_URL}/dashboard.json 2>/dev/null | head -1 | grep 200; do sleep 1; echo -n '.'; done" || echo "\n\nERROR: could not reach: ${SVELTE_APP_REMOTE_URL}/dashboard.json after 10 minutes"
+while ! curl -k -Is ${SVELTE_APP_REMOTE_URL}/dashboard.json 2>/dev/null | head -1 | grep 200; do
+    sleep 1
+    echo -n '.'
+done || echo "\n\nERROR: could not reach: ${SVELTE_APP_REMOTE_URL}/dashboard.json after 10 minutes"
+
+echo "testing: curl -k ${SVELTE_APP_REMOTE_URL}/dashboard.json | jq ."
+echo "wait until it is returning a json object..."
+while ! curl -k ${SVELTE_APP_REMOTE_URL}/dashboard.json 2>/dev/null | jq . >/dev/null; do
+    sleep 1
+    echo -n '.'
+done || echo "\n\nERROR: ${SVELTE_APP_REMOTE_URL} did not return a json object..."
     
+if [[ -z "${DEV}" ]]; then
     pnpm build
     cp /app/dist/* /usr/share/nginx/html/.
     nginx -g 'daemon off;'
 else
-
-    sleep 5
+    sleep 1
     pnpm dev
 fi
