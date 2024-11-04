@@ -28,5 +28,6 @@ if [[ -z "${DEV}" ]]; then
     nginx -g 'daemon off;'
 else
 
+    sleep 5
     pnpm dev
 fi

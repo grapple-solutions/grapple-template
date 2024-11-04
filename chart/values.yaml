@@ -18,28 +18,65 @@ gras-deploy:
       - name: test
         spec:
           name: init-db
-          image: busybox:1.28
-          command: ['sh', '-c', "if ! test -f /data/db.json; then wget -O /data/db.json https://raw.githubusercontent.com/grapple-solutions/grapple-test-data/main/classicmodelsid/db.json; chmod 777 /data/db.json; fi"]
-    volumes:
-      - name: data
-        emptyDir: {}
-        # persistentVolumeClaim: 
-        #   claimName: grapi-dbfile
-    volumeMounts:
-      - name: data
-        mountPath: /data
+          image: mysql
+          command:
+          - bash
+          - -c
+          - sleep 5;
+            while ! mysql -h $(host) -P $(port) -u $(username) -p$(password) -e "show databases;" 2>/dev/null; do 
+              echo -n .; 
+              sleep 2; 
+              done; 
+              if mysql -h $(host) -P $(port) -u $(username) -p$(password) -e "USE classicmodelsid;
+                  SET @tablename := (select table_name from information_schema.tables where
+                  table_type = 'BASE TABLE' and table_schema = 'classicmodelsid' limit 1);
+                  set @qry1:= concat('select * from ',@tablename,' limit 1'); prepare stmt
+                  from @qry1 ; execute stmt ;" ; then 
+                echo "database already exists...";
+              else 
+                curl -o /tmp/classicmodelsid.sql https://raw.githubusercontent.com/grapple-solutions/grapple-test-data/main/classicmodelsid/classicmodelsid.sql;
+                mysql -h $(host) -P $(port) -u $(username) -p$(password) < /tmp/classicmodelsid.sql;
+              fi
+    extraSecrets:
+      - grpl-test-cm-conn-credential
+    # volumes:
+    #   - name: data
+    #     emptyDir: {}
+    #     # persistentVolumeClaim: 
+    #     #   claimName: grapi-dbfile
+    # volumeMounts:
+    #   - name: data
+    #     mountPath: /data
+    # datasources:
+    #   - name: "db"
+    #     spec:
+    #       memory:
+    #         connector: "memory"
+    #         name: "db"
+    #         file: "/data/db.json"
+    #         localStorage: "db"
     datasources:
-      - name: "db"
+      - name: classicmodelsid
         spec:
-          memory:
-            connector: "memory"
-            name: "db"
-            file: "/data/db.json"
-            localStorage: "db"
+          mysql:
+            database: classicmodelsid
+            host: $(host)
+            name: classicmodelsid
+            password: $(password)
+            port: $(port)
+            url: ""
+            user: $(username)
+    discoveries:
+      - name: classicmodelsid
+        spec:
+          all: true
+          dataSource: classicmodelsid
+          disableCamelCase: false
+          schema: classicmodelsid
     models:
-      - name: "customers"
+      - name: "clients"
         spec:
-          name: customers
+          name: clients
           base: Entity
           properties:
             id:
@@ -69,54 +106,34 @@ gras-deploy:
               type: string
             creditLimit:
               type: number
-      - name: "employees"
+    repositories:
+      - name: classicmodelsid
         spec:
-          name: employees
-          base: Entity
-          properties:
-            id:
-              type: number
-              id: true
-              required: true
-              generated: true
-            lastName:
-              type: string
-            firstName:
-              type: string
-            extension:
-              type: string
-            email:
-              type: string
-            officesId:
-              type: string
-            reportsTo:
-              type: number
-            jobTitle:
-              type: string
-            state:
-              type: string
-            postalCode:
-              type: string
-            country:
-              type: string
-            creditLimit:
-              type: number
+          datasource: classicmodelsid
+          model: clients
+    # relations:
+    #   - name: "employees"
+    #     spec:
+    #       relationName: "employees"
+    #       sourceModel: "Customers"
+    #       destinationModel: "Employees"
+    #       foreignKeyName: "employeesId"
+    #       relationType: "belongsTo"
+    #       registerInclusionResolver: true
     relations:
-      - name: "employees"
+      - name: employees
         spec:
-          relationName: "employees"
-          sourceModel: "Customers"
-          destinationModel: "Employees"
-          foreignKeyName: "employeesId"
-          relationType: "belongsTo"
+          destinationModel: Employees
+          foreignKeyName: employeesId
           registerInclusionResolver: true
+          relationName: employees
+          relationType: belongsTo
+          sourceModel: Customers
     restcruds:
-      - name: "restcrud"
+      - name: "classicmodelsid"
         spec:
-          datasource: "db"
-    controllers:
-      - name: ping2
-        content: aW1wb3J0IHtpbmplY3R9IGZyb20gJ0Bsb29wYmFjay9jb3JlJzsKaW1wb3J0IHsKICBSZXF1ZXN0LAogIFJlc3RCaW5kaW5ncywKICBnZXQsCiAgcmVzcG9uc2UsCiAgUmVzcG9uc2VPYmplY3QsCn0gZnJvbSAnQGxvb3BiYWNrL3Jlc3QnOwoKLyoqCiAqIE9wZW5BUEkgcmVzcG9uc2UgZm9yIHBpbmcyKCkKICovCmNvbnN0IFBJTkcyX1JFU1BPTlNFOiBSZXNwb25zZU9iamVjdCA9IHsKICBkZXNjcmlwdGlvbjogJ1BpbmcyIFJlc3BvbnNlJywKICBjb250ZW50OiB7CiAgICAnYXBwbGljYXRpb24vanNvbic6IHsKICAgICAgc2NoZW1hOiB7CiAgICAgICAgdHlwZTogJ29iamVjdCcsCiAgICAgICAgdGl0bGU6ICdQaW5nMlJlc3BvbnNlJywKICAgICAgICBwcm9wZXJ0aWVzOiB7CiAgICAgICAgICBncmVldGluZzoge3R5cGU6ICdzdHJpbmcnfSwKICAgICAgICAgIGRhdGU6IHt0eXBlOiAnc3RyaW5nJ30sCiAgICAgICAgICB1cmw6IHt0eXBlOiAnc3RyaW5nJ30sCiAgICAgICAgICBoZWFkZXJzOiB7CiAgICAgICAgICAgIHR5cGU6ICdvYmplY3QnLAogICAgICAgICAgICBwcm9wZXJ0aWVzOiB7CiAgICAgICAgICAgICAgJ0NvbnRlbnQtVHlwZSc6IHt0eXBlOiAnc3RyaW5nJ30sCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgIGFkZGl0aW9uYWxQcm9wZXJ0aWVzOiB0cnVlLAogICAgICAgICAgfSwKICAgICAgICB9LAogICAgICB9LAogICAgfSwKICB9LAp9OwoKLyoqCiAqIEEgc2ltcGxlIGNvbnRyb2xsZXIgdG8gYm91bmNlIGJhY2sgaHR0cCByZXF1ZXN0cwogKi8KZXhwb3J0IGNsYXNzIFBpbmcyQ29udHJvbGxlciB7CiAgY29uc3RydWN0b3IoQGluamVjdChSZXN0QmluZGluZ3MuSHR0cC5SRVFVRVNUKSBwcml2YXRlIHJlcTogUmVxdWVzdCkge30KCiAgLy8gTWFwIHRvIGBHRVQgL3BpbmcyYAogIEBnZXQoJy9waW5nMicpCiAgQHJlc3BvbnNlKDIwMCwgUElORzJfUkVTUE9OU0UpCiAgcGluZzIoKTogb2JqZWN0IHsKICAgIC8vIFJlcGx5IHdpdGggYSBncmVldGluZywgdGhlIGN1cnJlbnQgdGltZSwgdGhlIHVybCwgYW5kIHJlcXVlc3QgaGVhZGVycwogICAgcmV0dXJuIHsKICAgICAgZ3JlZXRpbmc6ICdIZWxsbyBmcm9tIGdyYXBwbGUnLAogICAgICBkYXRlOiBuZXcgRGF0ZSgpLAogICAgICB1cmw6IHRoaXMucmVxLnVybCwKICAgICAgaGVhZGVyczogT2JqZWN0LmFzc2lnbih7fSwgdGhpcy5yZXEuaGVhZGVycyksCiAgICB9OwogIH0KfQo=
+          datasource: "classicmodelsid"
+    controllers: []
   gruim:
     # uiimagetag: "0.1.38"
     ssl: true
@@ -124,9 +141,7 @@ gras-deploy:
     style: '{"colors":{"primary":{"DEFAULT":"#34344A","fg":"#fff"},"accent":{"DEFAULT":"#CC5A71","fg":"#fff"}}}'
     config: ""
     additionalpackages: ""
-    custommodules:
-      - name: trainerDropDown
-        content: PHNjcmlwdCBsYW5nPSJ0cyI+CiAgaW1wb3J0IHsgb25Nb3VudCB9IGZyb20gInN2ZWx0ZSI7CgogIGltcG9ydCBTZWxlY3QgZnJvbSAic3ZlbHRlLXNlbGVjdC9TZWxlY3Quc3ZlbHRlIjsKICBpbXBvcnQgeyBjcmVhdGVFdmVudERpc3BhdGNoZXIgfSBmcm9tICJzdmVsdGUiOwogIGNvbnN0IGRpc3BhdGNoID0gY3JlYXRlRXZlbnREaXNwYXRjaGVyKCk7CgogIGV4cG9ydCBsZXQgc2VsZWN0ZWRWYWx1ZToKICAgIHwgewogICAgICAgIHZhbHVlOiBudW1iZXI7CiAgICAgICAgbGFiZWw6IHN0cmluZzsKICAgICAgfQogICAgfCB7fSA9IHt9OwoKICBleHBvcnQgbGV0IHBsYWNlaG9sZGVyID0gIlRyYWluZXIiOwoKICBsZXQgaGFuZGxlQ2hhbmdlID0gKCkgPT4gewogICAgZGlzcGF0Y2goInVwZGF0ZVRyYWluZXIiLCB7CiAgICAgIHNlbGVjdGVkVmFsdWUsCiAgICB9KTsKICB9OwoKICBsZXQgbGlzdDogYW55ID0gW107CgogIG9uTW91bnQoYXN5bmMgZnVuY3Rpb24gKCkgewogICAgbGV0IHNhdmVkVHJhaW5lciA9IGxvY2FsU3RvcmFnZS5nZXRJdGVtKCJ0cmFpbmVyIik7CgogICAgaWYgKHNhdmVkVHJhaW5lcikgewogICAgICBzZWxlY3RlZFZhbHVlID0gSlNPTi5wYXJzZShzYXZlZFRyYWluZXIpOwogICAgfQoKICAgIC8vIGdldCB0aGUgbGlzdCBvZiB0cmFpbmVycwogICAgLy8gc2V0IHRoZSBsaXN0IG9mIHRyYWluZXJzIHRvIHRoZSBzZWxlY3QgY29tcG9uZW50CiAgICBsZXQgcmFwcG9ydHMgPSBhd2FpdCBmZXRjaCgKICAgICAgYCR7cHJvY2Vzcy5lbnYuU1ZFTFRFX0FQUF9SRU1PVEVfVVJMfS9hcGkvdHJhaW5lcnNgCiAgICApOwogICAgY29uc3QgZGF0YSA9IGF3YWl0IHJhcHBvcnRzLmpzb24oKTsKCiAgICBsaXN0ID0gWwogICAgICB7CiAgICAgICAgdmxhdWU6IDAsCiAgICAgICAgbGFiZWw6ICJBbGwgVHJhaW5lcnMiLAogICAgICB9LAogICAgICAuLi5kYXRhLm1hcCgocjogYW55KSA9PiAoewogICAgICAgIHZhbHVlOiByLmlkLAogICAgICAgIGxhYmVsOiByLm5hbWUsCiAgICAgIH0pKSwKICAgIF07CiAgfSk7Cjwvc2NyaXB0PgoKPGRpdiBjbGFzcz0ibWF4LXctc20gdGhlbWVkIj4KICA8U2VsZWN0CiAgICBpdGVtcz17bGlzdH0KICAgIGJpbmQ6dmFsdWU9e3NlbGVjdGVkVmFsdWV9CiAgICBiaW5kOnBsYWNlaG9sZGVyCiAgICBvbjpzZWxlY3Q9e2hhbmRsZUNoYW5nZX0KICAvPgo8L2Rpdj4KCjxzdHlsZSBsYW5nPSJwb3N0Y3NzIj4KICAudGhlbWVkIHsKICAgIC0tYm9yZGVySG92ZXJDb2xvcjogIzFhNWNhMzsKICAgIC0tYm9yZGVyUmFkaXVzOiA0cHg7CiAgICAtLWl0ZW1Ib3ZlckJHOiAjZmZmMWVlOwogICAgLS1pdGVtSXNBY3RpdmVCRzogI2ZhNzI1MjsKICB9Cjwvc3R5bGU+Cg==
+    custommodules: []
 replicaCount: 1
 image:
   repository: grpl/grapple-template-pr
